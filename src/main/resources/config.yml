@@ -1,0 +1,33 @@
+# Configuración del plugin Servidirectorios
+
+database:
+  host: 'localhost'
+  port: '3306'
+  database: 'servidirectorios_db'
+  username: 'usuario'
+  password: 'contraseña'
+
+credit-slots-stay-on-page-switch: true
+
+# Rango de puestos
+credit-slots:
+  start: 0
+  end: 17
+
+servidolar-slots:
+  start: 18
+  end: 50
+
+# Precios de los puestos
+slot-prices:
+  # Créditos
+  '0': 10.0
+  '1': 15.0
+  # ...
+  '17': 25.0
+
+  # Servidólares
+  '18': 100.0
+  '19': 150.0
+  # ...
+  '50': 500.0

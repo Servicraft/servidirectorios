@@ -1,0 +1,16 @@
+name: Servidirectorios
+version: 1.0
+main: com.servicraft.servidirectorios.Servidirectorios
+api-version: 1.21
+commands:
+  directorios:
+    description: Comando principal para el plugin Servidirectorios.
+    usage: /<command> tiendas
+    aliases: [dirs]
+permissions:
+  servidirectorios.use:
+    description: Permite al jugador usar el comando /directorios.
+    default: true
+  servidirectorios.admin:
+    description: Permite al jugador acceder a comandos administrativos.
+    default: op

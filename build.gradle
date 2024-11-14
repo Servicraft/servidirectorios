@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.servicraft'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        url = 'https://jitpack.io' // Si LeaderOSAPI está en JitPack
+    }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.21.3-R0.1-SNAPSHOT'
+    compileOnly 'net.milkbowl.vault:VaultAPI:1.7' // Asegúrate de usar la versión correcta
+    compileOnly 'com.github.LeaderOS:LeaderOSAPI:Versión' // Reemplaza 'Versión' con la versión correcta
+}
