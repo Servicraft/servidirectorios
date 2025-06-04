@@ -39,6 +39,7 @@ dependencies {
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'com.github.leaderos-net:leaderos-plugin:1.1.0'
     compileOnly 'mysql:mysql-connector-java:8.0.33'
+    compileOnly 'com.h2database:h2:2.2.224'
 }
 
 jar {
