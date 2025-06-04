@@ -1,8 +1,11 @@
 name: Servidirectorios
-main: org.servicraft.servidirectorios
+main: org.servicraft.servidirectorios.Servidirectorios
 version: "1.0.0"
 api-version: 1.21.3
 commands:
-  directorios:
-    description: Abre el menú principal de directorios (atajos y tiendas).
-    usage: /directorios [tiendas]
+    directorios:
+      description: Abre el menú principal de directorios (atajos y tiendas).
+      usage: /directorios [tiendas]
+    createshortcut:
+      description: Crea un nuevo atajo en tu ubicación actual.
+      usage: /createshortcut <nombre> <descripcion>

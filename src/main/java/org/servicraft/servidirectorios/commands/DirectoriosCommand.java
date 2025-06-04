@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
 import org.servicraft.servidirectorios.Servidirectorios;
 import org.servicraft.servidirectorios.gui.BuySlotGUI;
+import org.servicraft.servidirectorios.gui.ShortcutMenu;
 
 public class DirectoriosCommand implements CommandExecutor {
 
@@ -27,16 +28,12 @@ public class DirectoriosCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            // User Story #1: Menú de atajos (placeholder)
-            player.sendMessage(ChatColor.GREEN + "Abriendo menú de atajos...");
-            // Aquí se implementará la UI de atajos personalizada.
+            ShortcutMenu.open(player);
             return true;
         }
 
         if (args[0].equalsIgnoreCase("tiendas")) {
-            // Subcomando /directorios tiendas: abrir el menú de tiendas
-            player.sendMessage(ChatColor.AQUA + "Abriendo menú de tiendas...");
-            // Aquí se delegará a la lógica del menú de tiendas.
+            BuySlotGUI.open(player, 1);
             return true;
         }
         

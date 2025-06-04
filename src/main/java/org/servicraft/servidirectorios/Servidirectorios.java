@@ -3,7 +3,10 @@ package org.servicraft.servidirectorios;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.servicraft.servidirectorios.commands.DirectoriosCommand;
+import org.servicraft.servidirectorios.commands.CreateShortcutCommand;
 import org.servicraft.servidirectorios.listeners.BuySlotGUIListener;
+import org.servicraft.servidirectorios.listeners.ShortcutMenuListener;
+import org.servicraft.servidirectorios.database.DatabaseManager;
 import net.milkbowl.vault.economy.Economy;
 
 public class Servidirectorios extends JavaPlugin {
@@ -21,13 +24,18 @@ public class Servidirectorios extends JavaPlugin {
             return;
         }
         
-        // Registrar el comando /directorios
-        this.getCommand("directorios").setExecutor(new DirectoriosCommand(this));
-        
-        // Registrar listener para la GUI de compra
-        getServer().getPluginManager().registerEvents(new BuySlotGUIListener(), this);
-        
         saveDefaultConfig();
+
+        // Inicializar base de datos
+        DatabaseManager.init(this);
+
+        // Registrar comandos
+        this.getCommand("directorios").setExecutor(new DirectoriosCommand(this));
+        this.getCommand("createshortcut").setExecutor(new CreateShortcutCommand());
+        
+        // Registrar listeners para las GUIs
+        getServer().getPluginManager().registerEvents(new BuySlotGUIListener(), this);
+        getServer().getPluginManager().registerEvents(new ShortcutMenuListener(), this);
     }
     
     @Override
