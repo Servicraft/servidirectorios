@@ -2,6 +2,7 @@ package org.servicraft.servidirectorios.database;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.io.File;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -21,19 +22,35 @@ public class DatabaseManager {
 
     public static void init(JavaPlugin plugin) {
         FileConfiguration config = plugin.getConfig();
-        String host = config.getString("database.host");
-        String port = config.getString("database.port");
-        String db = config.getString("database.database");
-        String user = config.getString("database.username");
-        String pass = config.getString("database.password");
-
-        String url = "jdbc:mysql://" + host + ":" + port + "/" + db + "?useSSL=false&autoReconnect=true";
-        try {
-            connection = DriverManager.getConnection(url, user, pass);
-            createTables();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            connection = null;
+        String type = config.getString("database.type", "h2");
+        if (type.equalsIgnoreCase("mysql")) {
+            String host = config.getString("database.mysql.host");
+            String port = config.getString("database.mysql.port");
+            String db = config.getString("database.mysql.database");
+            String user = config.getString("database.mysql.username");
+            String pass = config.getString("database.mysql.password");
+            String url = "jdbc:mysql://" + host + ":" + port + "/" + db + "?useSSL=false&autoReconnect=true";
+            try {
+                connection = DriverManager.getConnection(url, user, pass);
+                createTables();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                connection = null;
+            }
+        } else {
+            String fileName = config.getString("database.file", "database");
+            File dataFolder = plugin.getDataFolder();
+            if (!dataFolder.exists()) {
+                dataFolder.mkdirs();
+            }
+            String url = "jdbc:h2:" + new File(dataFolder, fileName).getPath();
+            try {
+                connection = DriverManager.getConnection(url, "sa", "");
+                createTables();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                connection = null;
+            }
         }
     }
 

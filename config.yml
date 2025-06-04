@@ -1,11 +1,15 @@
 # Configuración del plugin Servidirectorios
 
 database:
-  host: 'localhost'
-  port: '3306'
-  database: 'servidirectorios_db'
-  username: 'usuario'
-  password: 'contraseña'
+  # Tipo de almacenamiento: 'h2' o 'mysql'
+  type: 'h2'
+  file: 'database'
+  mysql:
+    host: 'localhost'
+    port: '3306'
+    database: 'servidirectorios_db'
+    username: 'usuario'
+    password: 'contraseña'
 
 credit-slots-stay-on-page-switch: true
 
