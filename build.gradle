@@ -23,6 +23,7 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.21.3-R0.1-SNAPSHOT'
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'com.github.leaderos-net:leaderos-plugin:{RELEASE-VERSION}'
+    compileOnly 'mysql:mysql-connector-java:8.0.33'
 }
 
 jar {
