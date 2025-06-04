@@ -7,9 +7,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.leaderos.plugin.api.LeaderOSAPI;
 import net.leaderos.plugin.api.handlers.UpdateCacheEvent;
-import net.leaderos.shared.helpers.ChatUtil;
+import net.leaderos.plugin.helpers.ChatUtil;
 import net.leaderos.shared.helpers.MoneyUtil;
 import net.leaderos.shared.helpers.Placeholder;
+import net.leaderos.shared.modules.credit.enums.UpdateType;
 import org.bukkit.Bukkit;
 
 public class RemoveCreditsCommand implements CommandExecutor {
@@ -48,7 +49,7 @@ public class RemoveCreditsCommand implements CommandExecutor {
 
                 if (isRemoved) {
                     Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(
-                        new UpdateCacheEvent(targetPlayerName, amount, UpdateCacheEvent.UpdateType.REMOVE)
+                        new UpdateCacheEvent(targetPlayerName, amount, UpdateType.REMOVE)
                     ));
 
                     sender.sendMessage(ChatUtil.replacePlaceholders(

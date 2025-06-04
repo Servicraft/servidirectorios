@@ -69,22 +69,25 @@ public class BuySlotGUIListener implements Listener {
                 if (row == 1) {
                     // Pago con créditos utilizando LeaderOS
                     player.sendMessage(ChatColor.GREEN + "Procesando compra con créditos...");
+                    final Player targetPlayer = player;
+                    final double transactionCost = cost;
                     Bukkit.getScheduler().runTaskAsynchronously(Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> {
-                        boolean success = false;
+                        boolean success;
                         try {
                             // Se quitan créditos directamente utilizando la API de LeaderOS
-                            success = net.leaderos.plugin.api.LeaderOSAPI.getCreditManager().remove(player.getName(), cost);
+                            success = net.leaderos.plugin.api.LeaderOSAPI.getCreditManager().remove(targetPlayer.getName(), transactionCost);
                         } catch (Exception e) {
                             e.printStackTrace();
+                            success = false;
                         }
                         if (success) {
                             Bukkit.getScheduler().runTask(Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> {
                                 // Aquí se debe actualizar el estado del puesto en MySQL y actualizar la GUI (cambiar a estado ocupado)
-                                player.sendMessage(ChatColor.GREEN + "Compra exitosa. Se te han descontado " + cost + " créditos.");
+                                targetPlayer.sendMessage(ChatColor.GREEN + "Compra exitosa. Se te han descontado " + transactionCost + " créditos.");
                             });
                         } else {
                             Bukkit.getScheduler().runTask(Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> {
-                                player.sendMessage(ChatColor.RED + "No tienes suficientes créditos o ocurrió un error.");
+                                targetPlayer.sendMessage(ChatColor.RED + "No tienes suficientes créditos o ocurrió un error.");
                             });
                         }
                     });
