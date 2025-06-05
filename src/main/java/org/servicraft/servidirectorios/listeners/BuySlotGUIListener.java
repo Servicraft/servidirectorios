@@ -32,16 +32,22 @@ public class BuySlotGUIListener implements Listener {
             // Si se hace clic en el botón de paginación (azulejo magenta)
             if (clickedItem.getType() == Material.MAGENTA_GLAZED_TERRACOTTA) {
                 int currentPage = BuySlotGUI.getCurrentPage(player);
-                int nextPage = currentPage + 1;
-                player.sendMessage(ChatColor.AQUA + "Cambiando a la página " + nextPage + " de puestos promocionados...");
-                BuySlotGUI.open(player, nextPage);
+                if (displayName.contains("Siguiente página")) {
+                    int nextPage = currentPage + 1;
+                    player.sendMessage(ChatColor.AQUA + "Cambiando a la página " + nextPage + " de puestos promocionados...");
+                    BuySlotGUI.open(player, nextPage);
+                } else if (displayName.contains("Página anterior")) {
+                    int prevPage = Math.max(1, currentPage - 1);
+                    player.sendMessage(ChatColor.AQUA + "Volviendo a la página " + prevPage + " de puestos promocionados...");
+                    BuySlotGUI.open(player, prevPage);
+                }
                 return;
             }
             
             // Abrir el selector de semanas solo en puestos disponibles
             if (meta.hasLore() && meta.getLore().stream().anyMatch(line -> line.contains("¡Haz clic para comprar"))) {
                 int slot = event.getRawSlot();
-
+              
                 org.bukkit.configuration.file.FileConfiguration cfg = org.bukkit.plugin.java.JavaPlugin.getPlugin(org.servicraft.servidirectorios.Servidirectorios.class).getConfig();
                 int creditStart = cfg.getInt("credit-slots.start");
                 int creditEnd = cfg.getInt("credit-slots.end");
