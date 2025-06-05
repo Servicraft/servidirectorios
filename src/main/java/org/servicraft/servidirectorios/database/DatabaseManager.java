@@ -202,10 +202,15 @@ public class DatabaseManager {
     }
 
     public static List<Shortcut> getActiveShortcuts() {
+        return new ArrayList<>(getActiveShortcutMap().values());
+    }
+
+    public static java.util.Map<Integer, Shortcut> getActiveShortcutMap() {
         cleanExpiredSlots();
-        List<Shortcut> list = new ArrayList<>();
-        if (connection == null) return list;
-        String sql = "SELECT sc.* FROM slots s JOIN shortcuts sc ON s.shortcut_id = sc.id WHERE s.expires > ?";
+        java.util.Map<Integer, Shortcut> map = new java.util.LinkedHashMap<>();
+        if (connection == null) return map;
+        String sql = "SELECT s.slot_index, sc.* FROM slots s JOIN shortcuts sc ON s.shortcut_id = sc.id " +
+                "WHERE s.expires > ? ORDER BY s.slot_index";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, System.currentTimeMillis());
             ResultSet rs = ps.executeQuery();
@@ -218,11 +223,11 @@ public class DatabaseManager {
                         rs.getString("name"),
                         rs.getString("description"),
                         loc);
-                list.add(sc);
+                map.put(rs.getInt("slot_index"), sc);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return list;
+        return map;
     }
 }

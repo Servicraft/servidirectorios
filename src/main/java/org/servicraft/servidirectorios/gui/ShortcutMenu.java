@@ -15,12 +15,13 @@ import java.util.List;
 public class ShortcutMenu {
 
     public static void open(Player player) {
-        List<Shortcut> shortcuts = DatabaseManager.getActiveShortcuts();
+        java.util.Map<Integer, Shortcut> shortcuts = DatabaseManager.getActiveShortcutMap();
         Inventory inv = Bukkit.createInventory(null, 27, "Directorios");
 
-        int index = 0;
-        for (Shortcut sc : shortcuts) {
-            if (index >= inv.getSize()) break;
+        for (java.util.Map.Entry<Integer, Shortcut> entry : shortcuts.entrySet()) {
+            int slot = entry.getKey();
+            if (slot >= inv.getSize()) continue;
+            Shortcut sc = entry.getValue();
             ItemStack item = new ItemStack(Material.CHEST);
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
@@ -28,8 +29,7 @@ public class ShortcutMenu {
                 meta.setLore(java.util.Arrays.asList(ChatColor.GRAY + sc.getDescription()));
                 item.setItemMeta(meta);
             }
-            inv.setItem(index, item);
-            index++;
+            inv.setItem(slot, item);
         }
 
         // fill rest with decorative glass

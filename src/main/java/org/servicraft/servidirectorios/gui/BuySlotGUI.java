@@ -66,7 +66,7 @@ public class BuySlotGUI {
                 lore.add(ChatColor.AQUA + formatted + " créditos");
             } else {
                 String formatted = java.text.NumberFormat.getInstance(java.util.Locale.GERMAN).format(price);
-                lore.add(ChatColor.GREEN + "$" + formatted + "servi" + ChatColor.DARK_GREEN + "dólares");
+                lore.add(ChatColor.GREEN + "$" + formatted + " servi" + ChatColor.DARK_GREEN + "dólares");
             }
 
             inv.setItem(slot, buildItem(mat, nombre, lore));

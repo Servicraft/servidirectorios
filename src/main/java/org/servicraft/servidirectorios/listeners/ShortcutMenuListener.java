@@ -24,8 +24,8 @@ public class ShortcutMenuListener implements Listener {
             if (meta == null || !meta.hasDisplayName()) return;
 
             String name = ChatColor.stripColor(meta.getDisplayName());
-            List<Shortcut> shortcuts = DatabaseManager.getActiveShortcuts();
-            for (Shortcut sc : shortcuts) {
+            java.util.Map<Integer, Shortcut> shortcuts = DatabaseManager.getActiveShortcutMap();
+            for (Shortcut sc : shortcuts.values()) {
                 if (sc.getName().equalsIgnoreCase(name)) {
                     Player player = (Player) event.getWhoClicked();
                     player.closeInventory();

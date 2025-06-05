@@ -27,11 +27,11 @@ public class BuySlotWeeksGUIListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         Inventory inv = event.getInventory();
         int slot = event.getRawSlot();
-        if (slot == 10) {
+        if (slot == 9) {
             BuySlotWeeksGUI.decrementWeeks(player, inv);
-        } else if (slot == 14) {
+        } else if (slot == 13) {
             BuySlotWeeksGUI.incrementWeeks(player, inv);
-        } else if (slot == 12) {
+        } else if (slot == 11) {
             int weeks = BuySlotWeeksGUI.getWeeks(player);
             double price = BuySlotWeeksGUI.getPrice(player) * weeks;
             boolean credit = BuySlotWeeksGUI.isCredit(player);
