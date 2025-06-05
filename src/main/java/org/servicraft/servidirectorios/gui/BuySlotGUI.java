@@ -17,7 +17,7 @@ public class BuySlotGUI {
 
     public static void open(Player player, int page) {
         playerPages.put(player.getUniqueId(), page);
-        Inventory inv = Bukkit.createInventory(null, 54, "Puestos promocionados - Página " + page);
+        Inventory inv = Bukkit.createInventory(null, 27, "Puestos promocionados - Página " + page);
 
         // Rango de puestos para cada tipo de moneda
         org.bukkit.plugin.java.JavaPlugin plugin =
@@ -32,7 +32,7 @@ public class BuySlotGUI {
 
         int servSlotsPerPage = servEnd - servStart + 1;
 
-        for (int slot = 0; slot < inv.getSize(); slot++) {
+        for (int slot = 0; slot < 26; slot++) {
             boolean isCredit = slot >= creditStart && slot <= creditEnd;
             boolean isServDisplay = slot >= servStart && slot <= servEnd;
             if (!isCredit && !isServDisplay) continue;
@@ -44,8 +44,13 @@ public class BuySlotGUI {
             double price = cfg.getDouble("slot-prices." + priceIndex, 0.0);
             boolean ocupado = isCredit && (slot == creditStart || slot == creditStart + 1);
 
+            int displayNumber = slot + 1;
+            if (isServDisplay && page > 1) {
+                displayNumber = slot + servSlotsPerPage * (page - 1) + 1;
+            }
+
             Material mat = ocupado ? Material.RED_STAINED_GLASS_PANE : Material.LIME_STAINED_GLASS_PANE;
-            String nombre = (ocupado ? ChatColor.RED : ChatColor.GREEN) + "Puesto " + (slot + 1);
+            String nombre = (ocupado ? ChatColor.RED : ChatColor.GREEN) + "Puesto " + displayNumber;
 
             List<String> lore = new ArrayList<>();
             if (ocupado) {
@@ -68,10 +73,16 @@ public class BuySlotGUI {
             inv.setItem(slot, buildItem(mat, nombre, lore));
         }
 
-        // Pagination: posición [6,9] → índice 53
-        inv.setItem(53, buildItem(Material.MAGENTA_GLAZED_TERRACOTTA,
-                ChatColor.LIGHT_PURPLE + "Haz clic para ver más puestos (todos en servidólares)",
-                null));
+        // Paginación: siguiente o anterior página
+        if (page <= 1) {
+            inv.setItem(26, buildItem(Material.MAGENTA_GLAZED_TERRACOTTA,
+                    ChatColor.WHITE + "Siguiente página",
+                    null));
+        } else {
+            inv.setItem(18, buildItem(Material.MAGENTA_GLAZED_TERRACOTTA,
+                    ChatColor.WHITE + "Página anterior",
+                    null));
+        }
 
         // Llenar espacios vacíos con panel de vidrio verde
         fillEmptySlots(inv, Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + " ");

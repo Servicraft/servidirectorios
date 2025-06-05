@@ -34,9 +34,15 @@ public class BuySlotGUIListener implements Listener {
             // Si se hace clic en el botón de paginación (azulejo magenta)
             if (clickedItem.getType() == Material.MAGENTA_GLAZED_TERRACOTTA) {
                 int currentPage = BuySlotGUI.getCurrentPage(player);
-                int nextPage = currentPage + 1;
-                player.sendMessage(ChatColor.AQUA + "Cambiando a la página " + nextPage + " de puestos promocionados...");
-                BuySlotGUI.open(player, nextPage);
+                if (displayName.contains("Siguiente página")) {
+                    int nextPage = currentPage + 1;
+                    player.sendMessage(ChatColor.AQUA + "Cambiando a la página " + nextPage + " de puestos promocionados...");
+                    BuySlotGUI.open(player, nextPage);
+                } else if (displayName.contains("Página anterior")) {
+                    int prevPage = Math.max(1, currentPage - 1);
+                    player.sendMessage(ChatColor.AQUA + "Volviendo a la página " + prevPage + " de puestos promocionados...");
+                    BuySlotGUI.open(player, prevPage);
+                }
                 return;
             }
             

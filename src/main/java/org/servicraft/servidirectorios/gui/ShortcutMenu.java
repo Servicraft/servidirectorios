@@ -16,7 +16,7 @@ public class ShortcutMenu {
 
     public static void open(Player player) {
         List<Shortcut> shortcuts = DatabaseManager.getShortcuts();
-        Inventory inv = Bukkit.createInventory(null, 54, "Directorios");
+        Inventory inv = Bukkit.createInventory(null, 27, "Directorios");
 
         int index = 0;
         for (Shortcut sc : shortcuts) {
