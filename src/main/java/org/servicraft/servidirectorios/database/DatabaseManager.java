@@ -44,7 +44,8 @@ public class DatabaseManager {
             if (!dataFolder.exists()) {
                 dataFolder.mkdirs();
             }
-            String url = "jdbc:h2:" + new File(dataFolder, fileName).getPath();
+            // Use absolute path to satisfy H2 requirement for explicit file locations
+            String url = "jdbc:h2:" + new File(dataFolder, fileName).getAbsolutePath();
             try {
                 // Cargar el driver manualmente para evitar problemas de "No suitable driver"
                 Class.forName("org.h2.Driver");
