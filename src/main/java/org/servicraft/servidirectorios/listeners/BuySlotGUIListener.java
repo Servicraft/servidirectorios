@@ -44,11 +44,10 @@ public class BuySlotGUIListener implements Listener {
                 return;
             }
             
-            // Procesar la compra si el item posee la acción de compra (se busca la línea "Haz clic para comprar este puesto!")
-            if (displayName.contains("¡Disponible!") || (meta.hasLore() && meta.getLore().stream().anyMatch(line -> line.contains("Haz clic para comprar este puesto!")))) {
+            // Abrir el selector de semanas solo en puestos disponibles
+            if (meta.hasLore() && meta.getLore().stream().anyMatch(line -> line.contains("¡Haz clic para comprar"))) {
                 int slot = event.getRawSlot();
-                int row = (slot / 9) + 1;
-
+              
                 org.bukkit.configuration.file.FileConfiguration cfg = org.bukkit.plugin.java.JavaPlugin.getPlugin(org.servicraft.servidirectorios.Servidirectorios.class).getConfig();
                 int creditStart = cfg.getInt("credit-slots.start");
                 int creditEnd = cfg.getInt("credit-slots.end");

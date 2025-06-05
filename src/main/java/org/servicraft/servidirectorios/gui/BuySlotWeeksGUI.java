@@ -63,7 +63,8 @@ public class BuySlotWeeksGUI {
         boolean credit = playerCredit.getOrDefault(player.getUniqueId(), false);
         double total = price * weeks;
 
-        ItemStack item = new ItemStack(Material.EMERALD);
+        ItemStack item = new ItemStack(Material.EXPERIENCE_BOTTLE);
+
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(ChatColor.GREEN + "Pagar");
