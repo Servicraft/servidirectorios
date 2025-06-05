@@ -1,6 +1,5 @@
 package org.servicraft.servidirectorios.listeners;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.servicraft.servidirectorios.gui.BuySlotGUI;
 import org.servicraft.servidirectorios.gui.BuySlotWeeksGUI;
+import org.servicraft.servidirectorios.gui.EditSlotGUI;
+import org.servicraft.servidirectorios.util.Message;
 
 public class BuySlotGUIListener implements Listener {
 
@@ -32,20 +33,20 @@ public class BuySlotGUIListener implements Listener {
             // Si se hace clic en el botón de paginación (azulejo magenta)
             if (clickedItem.getType() == Material.MAGENTA_GLAZED_TERRACOTTA) {
                 int currentPage = BuySlotGUI.getCurrentPage(player);
-                if (displayName.contains("Siguiente página")) {
+                if (displayName.contains(Message.NEXT_PAGE.get())) {
                     int nextPage = currentPage + 1;
-                    player.sendMessage(ChatColor.AQUA + "Cambiando a la página " + nextPage + " de puestos promocionados...");
+                    player.sendMessage(Message.CHANGING_PAGE.get().replace("{page}", String.valueOf(nextPage)));
                     BuySlotGUI.open(player, nextPage);
-                } else if (displayName.contains("Página anterior")) {
+                } else if (displayName.contains(Message.PREVIOUS_PAGE.get())) {
                     int prevPage = Math.max(1, currentPage - 1);
-                    player.sendMessage(ChatColor.AQUA + "Volviendo a la página " + prevPage + " de puestos promocionados...");
+                    player.sendMessage(Message.RETURNING_PAGE.get().replace("{page}", String.valueOf(prevPage)));
                     BuySlotGUI.open(player, prevPage);
                 }
                 return;
             }
             
-            // Abrir el selector de semanas solo en puestos disponibles
-            if (meta.hasLore() && meta.getLore().stream().anyMatch(line -> line.contains("¡Haz clic para comprar"))) {
+            // Abrir el selector de semanas solo en puestos disponibles o editar si es tuyo
+            if (meta.hasLore() && meta.getLore().stream().anyMatch(line -> line.contains(Message.SLOT_CLICK_TO_BUY_1.get()) || line.contains(Message.CLICK_TO_EDIT.get()))) {
                 int slot = event.getRawSlot();
               
                 org.bukkit.configuration.file.FileConfiguration cfg = org.bukkit.plugin.java.JavaPlugin.getPlugin(org.servicraft.servidirectorios.Servidirectorios.class).getConfig();
@@ -64,7 +65,13 @@ public class BuySlotGUIListener implements Listener {
                 double cost = cfg.getDouble("slot-prices." + priceIndex, 0.0);
                 boolean credit = slot >= creditStart && slot <= creditEnd;
 
-                BuySlotWeeksGUI.open(player, cost, credit, priceIndex);
+                String owner = org.servicraft.servidirectorios.database.DatabaseManager.getSlotOwner(priceIndex);
+                if (owner != null && owner.equalsIgnoreCase(player.getName())) {
+                    org.servicraft.servidirectorios.model.Shortcut sc = org.servicraft.servidirectorios.database.DatabaseManager.getOwnedShortcuts(owner).get(priceIndex);
+                    org.servicraft.servidirectorios.gui.EditSlotGUI.open(player, priceIndex, sc);
+                } else {
+                    BuySlotWeeksGUI.open(player, cost, credit, priceIndex);
+                }
             }
         }
     }

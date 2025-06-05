@@ -1,7 +1,7 @@
 package org.servicraft.servidirectorios.listeners;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.servicraft.servidirectorios.database.DatabaseManager;
 import org.servicraft.servidirectorios.model.Shortcut;
+import org.servicraft.servidirectorios.util.Message;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class ShortcutMenuListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equalsIgnoreCase("Directorios")) {
+        if (event.getView().getTitle().equalsIgnoreCase(Message.DIRECTORIES_TITLE.get())) {
             event.setCancelled(true);
             ItemStack item = event.getCurrentItem();
             if (item == null || !item.hasItemMeta()) return;
@@ -30,7 +31,7 @@ public class ShortcutMenuListener implements Listener {
                     Player player = (Player) event.getWhoClicked();
                     player.closeInventory();
                     player.teleport(sc.getLocation());
-                    player.sendMessage(ChatColor.AQUA + "Teletransportado a " + sc.getName());
+                    player.sendMessage(Message.TELEPORTED_TO.get().replace("{name}", sc.getName()));
                     return;
                 }
             }

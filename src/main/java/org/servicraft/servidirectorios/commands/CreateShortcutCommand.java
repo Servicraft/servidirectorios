@@ -7,17 +7,18 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.servicraft.servidirectorios.database.DatabaseManager;
+import org.servicraft.servidirectorios.util.Message;
 
 public class CreateShortcutCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("Este comando solo puede ser usado por jugadores.");
+            sender.sendMessage(Message.ONLY_PLAYERS.get());
             return true;
         }
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Uso: /createshortcut <nombre> <descripcion>");
+            sender.sendMessage(ChatColor.RED + Message.USAGE_CREATE_SHORTCUT.get());
             return true;
         }
         Player player = (Player) sender;
@@ -29,7 +30,7 @@ public class CreateShortcutCommand implements CommandExecutor {
         String desc = sb.toString().trim();
         Location loc = player.getLocation();
         DatabaseManager.createShortcut(name, desc, loc);
-        player.sendMessage(ChatColor.GREEN + "Shortcut creado: " + name);
+        player.sendMessage(ChatColor.GREEN + Message.SHORTCUT_CREATED.get().replace("{name}", name));
         return true;
     }
 }

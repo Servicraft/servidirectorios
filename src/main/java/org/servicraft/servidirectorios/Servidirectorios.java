@@ -7,7 +7,9 @@ import org.servicraft.servidirectorios.commands.CreateShortcutCommand;
 import org.servicraft.servidirectorios.listeners.BuySlotGUIListener;
 import org.servicraft.servidirectorios.listeners.BuySlotWeeksGUIListener;
 import org.servicraft.servidirectorios.listeners.ShortcutMenuListener;
+import org.servicraft.servidirectorios.listeners.EditMenuListener;
 import org.servicraft.servidirectorios.database.DatabaseManager;
+import org.servicraft.servidirectorios.util.Message;
 import net.milkbowl.vault.economy.Economy;
 
 public class Servidirectorios extends JavaPlugin {
@@ -16,11 +18,12 @@ public class Servidirectorios extends JavaPlugin {
     
     @Override
     public void onEnable() {
-        getLogger().info("Servidirectorios habilitado.");
+        Message.load(this);
+        getLogger().info(Message.PLUGIN_ENABLED.get());
         
         // Configurar Vault Economy
         if (!setupEconomy()) {
-            getLogger().severe("Vault no encontrado! Deshabilitando plugin.");
+            getLogger().severe(Message.NO_VAULT.get());
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -39,11 +42,12 @@ public class Servidirectorios extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BuySlotGUIListener(), this);
         getServer().getPluginManager().registerEvents(new BuySlotWeeksGUIListener(), this);
         getServer().getPluginManager().registerEvents(new ShortcutMenuListener(), this);
+        getServer().getPluginManager().registerEvents(new EditMenuListener(), this);
     }
     
     @Override
     public void onDisable() {
-        getLogger().info("Servidirectorios deshabilitado.");
+        getLogger().info(Message.PLUGIN_DISABLED.get());
     }
     
     private boolean setupEconomy() {
