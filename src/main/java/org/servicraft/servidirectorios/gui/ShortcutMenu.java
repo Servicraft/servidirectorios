@@ -16,7 +16,7 @@ public class ShortcutMenu {
 
     public static void open(Player player) {
         java.util.Map<Integer, Shortcut> shortcuts = DatabaseManager.getActiveShortcutMap();
-        Inventory inv = Bukkit.createInventory(null, 27, "Directorios");
+        Inventory inv = Bukkit.createInventory(null, 27, org.servicraft.servidirectorios.util.Message.DIRECTORIES_TITLE.get());
 
         for (java.util.Map.Entry<Integer, Shortcut> entry : shortcuts.entrySet()) {
             int slot = entry.getKey();
