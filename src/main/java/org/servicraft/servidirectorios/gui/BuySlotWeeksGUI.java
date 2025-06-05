@@ -16,11 +16,13 @@ public class BuySlotWeeksGUI {
     private static final Map<UUID, Integer> playerWeeks = new HashMap<>();
     private static final Map<UUID, Double> playerPrice = new HashMap<>();
     private static final Map<UUID, Boolean> playerCredit = new HashMap<>();
+    private static final Map<UUID, Integer> playerSlot = new HashMap<>();
 
-    public static void open(Player player, double price, boolean credit) {
+    public static void open(Player player, double price, boolean credit, int slotIndex) {
         playerWeeks.put(player.getUniqueId(), 1);
         playerPrice.put(player.getUniqueId(), price);
         playerCredit.put(player.getUniqueId(), credit);
+        playerSlot.put(player.getUniqueId(), slotIndex);
 
         Inventory inv = Bukkit.createInventory(null, 27, "Comprar puesto");
         inv.setItem(10, buildItem(Material.IRON_NUGGET, ChatColor.RED + "Reducir 1 semana", null));
@@ -111,5 +113,9 @@ public class BuySlotWeeksGUI {
 
     public static boolean isCredit(Player player) {
         return playerCredit.getOrDefault(player.getUniqueId(), false);
+    }
+
+    public static int getSlot(Player player) {
+        return playerSlot.getOrDefault(player.getUniqueId(), -1);
     }
 }

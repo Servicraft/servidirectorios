@@ -35,6 +35,7 @@ public class BuySlotWeeksGUIListener implements Listener {
             int weeks = BuySlotWeeksGUI.getWeeks(player);
             double price = BuySlotWeeksGUI.getPrice(player) * weeks;
             boolean credit = BuySlotWeeksGUI.isCredit(player);
+            int slotIndex = BuySlotWeeksGUI.getSlot(player);
             if (credit) {
                 player.sendMessage(ChatColor.GREEN + "Procesando compra con créditos...");
                 final Player target = player;
@@ -48,6 +49,7 @@ public class BuySlotWeeksGUIListener implements Listener {
                         success = false;
                     }
                     if (success) {
+                        org.servicraft.servidirectorios.database.DatabaseManager.purchaseSlot(slotIndex, weeks, target.getName(), target.getLocation());
                         org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> target.sendMessage(ChatColor.GREEN + "Compra exitosa."));
                     } else {
                         org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> target.sendMessage(ChatColor.RED + "No tienes suficientes créditos o ocurrió un error."));
@@ -62,6 +64,7 @@ public class BuySlotWeeksGUIListener implements Listener {
                 if (econ.getBalance(player) >= price) {
                     net.milkbowl.vault.economy.EconomyResponse resp = econ.withdrawPlayer(player, price);
                     if (resp.transactionSuccess()) {
+                        org.servicraft.servidirectorios.database.DatabaseManager.purchaseSlot(slotIndex, weeks, player.getName(), player.getLocation());
                         player.sendMessage(ChatColor.GREEN + "Compra exitosa.");
                     } else {
                         player.sendMessage(ChatColor.RED + "No se pudo completar la transacción.");
