@@ -18,54 +18,62 @@ public class BuySlotGUI {
     public static void open(Player player, int page) {
         playerPages.put(player.getUniqueId(), page);
         Inventory inv = Bukkit.createInventory(null, 54, "Puestos promocionados - Página " + page);
-        
-        // Hardcodeamos algunos items de ejemplo según la lógica del JSON
-        
-        // Slot 1: posición [1,1] → índice 0 (créditos)
-        setSlot(inv, 1, 1, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "Puesto 1", Arrays.asList(
-                ChatColor.GRAY + "Contrato expira en: 9 días",
-                ChatColor.BLUE + "Costo semanal: 1,25 créditos"
-        ));
-        
-        // Slot 2: posición [1,2] → índice 1 (créditos)
-        setSlot(inv, 1, 2, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "Puesto 2", Arrays.asList(
-                ChatColor.GRAY + "Contrato expira en: 2 días",
-                ChatColor.BLUE + "Costo semanal: 1,15 créditos"
-        ));
-        
-        // Slot 3: posición [1,3] → índice 2 (créditos, disponible)
-        setSlot(inv, 1, 3, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "Puesto 3 - ¡Disponible!", Arrays.asList(
-                ChatColor.YELLOW + "Haz clic para comprar este puesto!",
-                ChatColor.BLUE + "Costo semanal: 1,10 créditos"
-        ));
-        
-        // Slot 4: posición [2,3] → índice 11 (servidólares, disponible)
-        setSlot(inv, 2, 3, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "Puesto 11", Arrays.asList(
-                ChatColor.YELLOW + "Haz clic para comprar este puesto!",
-                ChatColor.GREEN + "Costo semanal: 7000 servidólares"
-        ));
-        
+
+        // Rango de puestos para cada tipo de moneda
+        org.bukkit.plugin.java.JavaPlugin plugin =
+                org.bukkit.plugin.java.JavaPlugin.getPlugin(org.servicraft.servidirectorios.Servidirectorios.class);
+        org.bukkit.configuration.file.FileConfiguration cfg = plugin.getConfig();
+        int creditStart = cfg.getInt("credit-slots.start");
+        int creditEnd = cfg.getInt("credit-slots.end");
+        int servStart = cfg.getInt("servidolar-slots.start");
+        int servEnd = cfg.getInt("servidolar-slots.end");
+
+        // Ejemplo simple de ocupación: los dos primeros puestos de créditos ocupados
+        for (int slot = 0; slot < inv.getSize(); slot++) {
+            boolean isCredit = slot >= creditStart && slot <= creditEnd;
+            boolean isServ = slot >= servStart && slot <= servEnd;
+            if (!isCredit && !isServ) continue;
+
+            double price = cfg.getDouble("slot-prices." + slot, 0.0);
+            boolean ocupado = isCredit && (slot == creditStart || slot == creditStart + 1);
+
+            Material mat = ocupado ? Material.RED_STAINED_GLASS_PANE : Material.GREEN_STAINED_GLASS_PANE;
+            String nombre = (ocupado ? ChatColor.RED : ChatColor.GREEN) + "Puesto " + (slot + 1);
+            if (!ocupado) nombre += " - ¡Disponible!";
+
+            List<String> lore = new ArrayList<>();
+            if (ocupado) {
+                lore.add(ChatColor.GRAY + "Contrato expira en: " + (slot == creditStart ? 9 : 2) + " días");
+            } else {
+                lore.add(ChatColor.YELLOW + "Haz clic para comprar este puesto!");
+            }
+            ChatColor color = isCredit ? ChatColor.BLUE : ChatColor.GREEN;
+            String moneda = isCredit ? "créditos" : "servidólares";
+            lore.add(color + "Valor semanal: " + price + " " + moneda);
+
+            inv.setItem(slot, buildItem(mat, nombre, lore));
+        }
+
         // Pagination: posición [6,9] → índice 53
-        setSlot(inv, 6, 9, Material.MAGENTA_GLAZED_TERRACOTTA, ChatColor.LIGHT_PURPLE + "Haz clic para ver más puestos (todos en servidólares)", null);
-        
+        inv.setItem(53, buildItem(Material.MAGENTA_GLAZED_TERRACOTTA,
+                ChatColor.LIGHT_PURPLE + "Haz clic para ver más puestos (todos en servidólares)",
+                null));
+
         // Llenar espacios vacíos con panel de vidrio verde
-        fillEmptySlots(inv, Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "Panel de vidrio verde, representa espacios libres");
-        
+        fillEmptySlots(inv, Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + " ");
+
         player.openInventory(inv);
     }
-    
-    private static void setSlot(Inventory inv, int row, int col, Material material, String displayName, List<String> lore) {
-        int index = getSlotIndex(row, col);
+
+    private static ItemStack buildItem(Material material, String displayName, List<String> lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(displayName);
-            if (lore != null) {
-                meta.setLore(lore);
-            }
+            if (lore != null) meta.setLore(lore);
             item.setItemMeta(meta);
         }
-        inv.setItem(index, item);
+        return item;
     }
     
     private static int getSlotIndex(int row, int col) {
