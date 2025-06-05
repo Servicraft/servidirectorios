@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group 'org.servicraft'
@@ -39,9 +40,14 @@ dependencies {
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'com.github.leaderos-net:leaderos-plugin:1.1.0'
     compileOnly 'mysql:mysql-connector-java:8.0.33'
-    compileOnly 'com.h2database:h2:2.2.224'
+    implementation 'com.h2database:h2:2.2.224'
 }
 
 jar {
     // No se incluyen las dependencias compileOnly en el JAR.
+}
+
+shadowJar {
+    // El JAR final incluirá las dependencias necesarias, sin clasificador extra
+    archiveClassifier.set('')
 }

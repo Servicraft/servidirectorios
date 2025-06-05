@@ -45,9 +45,11 @@ public class DatabaseManager {
             }
             String url = "jdbc:h2:" + new File(dataFolder, fileName).getPath();
             try {
+                // Cargar el driver manualmente para evitar problemas de "No suitable driver"
+                Class.forName("org.h2.Driver");
                 connection = DriverManager.getConnection(url, "sa", "");
                 createTables();
-            } catch (SQLException e) {
+            } catch (ClassNotFoundException | SQLException e) {
                 e.printStackTrace();
                 connection = null;
             }
