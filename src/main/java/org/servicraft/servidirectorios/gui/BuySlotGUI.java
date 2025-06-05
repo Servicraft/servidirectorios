@@ -28,8 +28,6 @@ public class BuySlotGUI {
         int servStart = cfg.getInt("servidolar-slots.start");
         int servEnd = cfg.getInt("servidolar-slots.end");
 
-        // Ejemplo simple de ocupación: los dos primeros puestos de créditos ocupados
-
         int servSlotsPerPage = servEnd - servStart + 1;
 
         for (int slot = 0; slot < 26; slot++) {
@@ -42,7 +40,8 @@ public class BuySlotGUI {
                 priceIndex = slot + servSlotsPerPage * (page - 1);
             }
             double price = cfg.getDouble("slot-prices." + priceIndex, 0.0);
-            boolean ocupado = isCredit && (slot == creditStart || slot == creditStart + 1);
+            boolean ocupado = org.servicraft.servidirectorios.database.DatabaseManager.isSlotOccupied(priceIndex);
+            int remaining = org.servicraft.servidirectorios.database.DatabaseManager.getRemainingDays(priceIndex);
 
             int displayNumber = slot + 1;
             if (isServDisplay && page > 1) {
@@ -55,7 +54,7 @@ public class BuySlotGUI {
             List<String> lore = new ArrayList<>();
             if (ocupado) {
                 lore.add(ChatColor.GRAY + "Contrato expira en");
-                lore.add(ChatColor.GRAY + String.valueOf(slot == creditStart ? 9 : 2) + " días");
+                lore.add(ChatColor.GRAY + String.valueOf(remaining) + " días");
             } else {
                 lore.add(ChatColor.GRAY + "¡Haz clic para comprar");
                 lore.add(ChatColor.GRAY + "este puesto!");
