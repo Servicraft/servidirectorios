@@ -1,6 +1,5 @@
 package org.servicraft.servidirectorios.listeners;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.servicraft.servidirectorios.Servidirectorios;
 import org.servicraft.servidirectorios.gui.BuySlotWeeksGUI;
 import net.milkbowl.vault.economy.Economy;
+import org.servicraft.servidirectorios.util.Message;
 
 public class BuySlotWeeksGUIListener implements Listener {
 
@@ -37,7 +37,7 @@ public class BuySlotWeeksGUIListener implements Listener {
             boolean credit = BuySlotWeeksGUI.isCredit(player);
             int slotIndex = BuySlotWeeksGUI.getSlot(player);
             if (credit) {
-                player.sendMessage(ChatColor.GREEN + "Procesando compra con créditos...");
+                player.sendMessage(Message.PROCESSING_CREDITS.get());
                 final Player target = player;
                 final double amount = price;
                 org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> {
@@ -50,27 +50,27 @@ public class BuySlotWeeksGUIListener implements Listener {
                     }
                     if (success) {
                         org.servicraft.servidirectorios.database.DatabaseManager.purchaseSlot(slotIndex, weeks, target.getName(), target.getLocation());
-                        org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> target.sendMessage(ChatColor.GREEN + "Compra exitosa."));
+                        org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> target.sendMessage(Message.BUY_SUCCESS.get()));
                     } else {
-                        org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> target.sendMessage(ChatColor.RED + "No tienes suficientes créditos o ocurrió un error."));
+                        org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> target.sendMessage(Message.NOT_ENOUGH_CREDITS.get()));
                     }
                 });
             } else {
                 Economy econ = Servidirectorios.getEconomy();
                 if (econ == null) {
-                    player.sendMessage(ChatColor.RED + "El sistema de economía no está disponible.");
+                    player.sendMessage(Message.ECONOMY_NOT_AVAILABLE.get());
                     return;
                 }
                 if (econ.getBalance(player) >= price) {
                     net.milkbowl.vault.economy.EconomyResponse resp = econ.withdrawPlayer(player, price);
                     if (resp.transactionSuccess()) {
                         org.servicraft.servidirectorios.database.DatabaseManager.purchaseSlot(slotIndex, weeks, player.getName(), player.getLocation());
-                        player.sendMessage(ChatColor.GREEN + "Compra exitosa.");
+                        player.sendMessage(Message.BUY_SUCCESS.get());
                     } else {
-                        player.sendMessage(ChatColor.RED + "No se pudo completar la transacción.");
+                        player.sendMessage(Message.TRANSACTION_FAILED.get());
                     }
                 } else {
-                    player.sendMessage(ChatColor.RED + "No tienes suficientes servidólares.");
+                    player.sendMessage(Message.NOT_ENOUGH_MONEY.get());
                 }
             }
             player.closeInventory();

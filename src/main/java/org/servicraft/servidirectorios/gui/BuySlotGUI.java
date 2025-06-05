@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.servicraft.servidirectorios.database.DatabaseManager;
+import org.servicraft.servidirectorios.util.Message;
 
 import java.util.*;
 
@@ -17,7 +19,7 @@ public class BuySlotGUI {
 
     public static void open(Player player, int page) {
         playerPages.put(player.getUniqueId(), page);
-        Inventory inv = Bukkit.createInventory(null, 27, "Puestos promocionados - Página " + page);
+        Inventory inv = Bukkit.createInventory(null, 27, Message.PROMOTED_SLOTS_TITLE.get().replace("{page}", String.valueOf(page)));
 
         // Rango de puestos para cada tipo de moneda
         org.bukkit.plugin.java.JavaPlugin plugin =
@@ -40,27 +42,43 @@ public class BuySlotGUI {
                 priceIndex = slot + servSlotsPerPage * (page - 1);
             }
             double price = cfg.getDouble("slot-prices." + priceIndex, 0.0);
-            boolean ocupado = org.servicraft.servidirectorios.database.DatabaseManager.isSlotOccupied(priceIndex);
-            int remaining = org.servicraft.servidirectorios.database.DatabaseManager.getRemainingDays(priceIndex);
+            boolean ocupado = DatabaseManager.isSlotOccupied(priceIndex);
+            String owner = DatabaseManager.getSlotOwner(priceIndex);
+            int remaining = DatabaseManager.getRemainingDays(priceIndex);
 
             int displayNumber = slot + 1;
             if (isServDisplay && page > 1) {
                 displayNumber = slot + servSlotsPerPage * (page - 1) + 1;
             }
 
-            Material mat = ocupado ? Material.RED_STAINED_GLASS_PANE : Material.LIME_STAINED_GLASS_PANE;
-            String nombre = (ocupado ? ChatColor.RED : ChatColor.GREEN) + "Puesto " + displayNumber;
+            boolean mine = ocupado && owner != null && owner.equalsIgnoreCase(player.getName());
+            Material mat;
+            ChatColor color;
+            if (!ocupado) {
+                mat = Material.LIME_STAINED_GLASS_PANE;
+                color = ChatColor.GREEN;
+            } else if (mine) {
+                mat = Material.ORANGE_STAINED_GLASS_PANE;
+                color = ChatColor.GOLD;
+            } else {
+                mat = Material.RED_STAINED_GLASS_PANE;
+                color = ChatColor.RED;
+            }
+            String nombre = color + Message.SLOT_NAME.get().replace("{number}", String.valueOf(displayNumber));
 
             List<String> lore = new ArrayList<>();
             if (ocupado) {
-                lore.add(ChatColor.GRAY + "Contrato expira en");
-                lore.add(ChatColor.GRAY + String.valueOf(remaining) + " días");
+                lore.add(ChatColor.GRAY + Message.SLOT_CONTRACT_EXPIRES.get());
+                lore.add(ChatColor.GRAY + Message.SLOT_REMAINING_DAYS.get().replace("{days}", String.valueOf(remaining)));
+                if (mine) {
+                    lore.add(Message.CLICK_TO_EDIT.get());
+                }
             } else {
-                lore.add(ChatColor.GRAY + "¡Haz clic para comprar");
-                lore.add(ChatColor.GRAY + "este puesto!");
+                lore.add(ChatColor.GRAY + Message.SLOT_CLICK_TO_BUY_1.get());
+                lore.add(ChatColor.GRAY + Message.SLOT_CLICK_TO_BUY_2.get());
             }
             lore.add(" ");
-            lore.add(ChatColor.GRAY + "Valor semanal:");
+            lore.add(ChatColor.GRAY + Message.WEEKLY_PRICE.get());
             if (isCredit) {
                 String formatted = String.format(java.util.Locale.US, "%.2f", price).replace('.', ',');
                 lore.add(ChatColor.AQUA + formatted + " créditos");
@@ -75,11 +93,11 @@ public class BuySlotGUI {
         // Paginación: siguiente o anterior página
         if (page <= 1) {
             inv.setItem(26, buildItem(Material.MAGENTA_GLAZED_TERRACOTTA,
-                    ChatColor.WHITE + "Siguiente página",
+                    ChatColor.WHITE + Message.NEXT_PAGE.get(),
                     null));
         } else {
             inv.setItem(18, buildItem(Material.MAGENTA_GLAZED_TERRACOTTA,
-                    ChatColor.WHITE + "Página anterior",
+                    ChatColor.WHITE + Message.PREVIOUS_PAGE.get(),
                     null));
         }
 

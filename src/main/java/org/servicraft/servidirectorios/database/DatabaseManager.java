@@ -76,10 +76,14 @@ public class DatabaseManager {
         String slots = "CREATE TABLE IF NOT EXISTS slots (" +
                 "slot_index INT PRIMARY KEY," +
                 "shortcut_id INT NOT NULL," +
-                "expires BIGINT NOT NULL" +
+                "expires BIGINT NOT NULL," +
+                "owner VARCHAR(32) NOT NULL" +
                 ")";
         connection.createStatement().executeUpdate(shortcuts);
         connection.createStatement().executeUpdate(slots);
+        try {
+            connection.createStatement().executeUpdate("ALTER TABLE slots ADD COLUMN IF NOT EXISTS owner VARCHAR(32) NOT NULL DEFAULT ''");
+        } catch (SQLException ignore) {}
     }
 
     public static boolean isConnected() {
@@ -179,6 +183,75 @@ public class DatabaseManager {
         return 0;
     }
 
+    public static String getSlotOwner(int slotIndex) {
+        cleanExpiredSlots();
+        if (connection == null) return null;
+        String sql = "SELECT owner FROM slots WHERE slot_index = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, slotIndex);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("owner");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static java.util.Map<Integer, Shortcut> getOwnedShortcuts(String player) {
+        cleanExpiredSlots();
+        java.util.Map<Integer, Shortcut> map = new java.util.LinkedHashMap<>();
+        if (connection == null) return map;
+        String sql = "SELECT s.slot_index, sc.* FROM slots s JOIN shortcuts sc ON s.shortcut_id = sc.id WHERE s.owner = ? AND s.expires > ? ORDER BY s.slot_index";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, player);
+            ps.setLong(2, System.currentTimeMillis());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Location loc = new Location(Bukkit.getWorld(rs.getString("world")),
+                        rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"),
+                        rs.getFloat("yaw"), rs.getFloat("pitch"));
+                Shortcut sc = new Shortcut(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        loc);
+                map.put(rs.getInt("slot_index"), sc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    public static void updateShortcutBySlot(int slotIndex, String name, String description, Location loc) {
+        if (connection == null) return;
+        String getId = "SELECT shortcut_id FROM slots WHERE slot_index = ?";
+        try (PreparedStatement ps = connection.prepareStatement(getId)) {
+            ps.setInt(1, slotIndex);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt(1);
+                String sql = "UPDATE shortcuts SET name=?, description=?, world=?, x=?, y=?, z=?, yaw=?, pitch=? WHERE id=?";
+                try (PreparedStatement ps2 = connection.prepareStatement(sql)) {
+                    ps2.setString(1, name);
+                    ps2.setString(2, description);
+                    ps2.setString(3, loc.getWorld().getName());
+                    ps2.setDouble(4, loc.getX());
+                    ps2.setDouble(5, loc.getY());
+                    ps2.setDouble(6, loc.getZ());
+                    ps2.setFloat(7, loc.getYaw());
+                    ps2.setFloat(8, loc.getPitch());
+                    ps2.setInt(9, id);
+                    ps2.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void purchaseSlot(int slotIndex, int weeks, String playerName, Location loc) {
         if (connection == null) return;
         int shortcutId = createShortcut(playerName, "Tienda de " + playerName, loc);
@@ -186,15 +259,16 @@ public class DatabaseManager {
         long expires = System.currentTimeMillis() + weeks * 7L * 24L * 60L * 60L * 1000L;
         String sql;
         if ("mysql".equals(dbType)) {
-            sql = "INSERT INTO slots(slot_index, shortcut_id, expires) VALUES(?,?,?) " +
-                    "ON DUPLICATE KEY UPDATE shortcut_id=VALUES(shortcut_id), expires=VALUES(expires)";
+            sql = "INSERT INTO slots(slot_index, shortcut_id, expires, owner) VALUES(?,?,?,?) " +
+                    "ON DUPLICATE KEY UPDATE shortcut_id=VALUES(shortcut_id), expires=VALUES(expires), owner=VALUES(owner)";
         } else {
-            sql = "MERGE INTO slots KEY(slot_index) VALUES(?,?,?)";
+            sql = "MERGE INTO slots KEY(slot_index) VALUES(?,?,?,?)";
         }
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, slotIndex);
             ps.setInt(2, shortcutId);
             ps.setLong(3, expires);
+            ps.setString(4, playerName);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
