@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.servicraft.servidirectorios.commands.DirectoriosCommand;
 import org.servicraft.servidirectorios.commands.CreateShortcutCommand;
 import org.servicraft.servidirectorios.listeners.BuySlotGUIListener;
+import org.servicraft.servidirectorios.listeners.BuySlotWeeksGUIListener;
 import org.servicraft.servidirectorios.listeners.ShortcutMenuListener;
 import org.servicraft.servidirectorios.database.DatabaseManager;
 import net.milkbowl.vault.economy.Economy;
@@ -35,6 +36,7 @@ public class Servidirectorios extends JavaPlugin {
         
         // Registrar listeners para las GUIs
         getServer().getPluginManager().registerEvents(new BuySlotGUIListener(), this);
+        getServer().getPluginManager().registerEvents(new BuySlotWeeksGUIListener(), this);
         getServer().getPluginManager().registerEvents(new ShortcutMenuListener(), this);
     }
     
