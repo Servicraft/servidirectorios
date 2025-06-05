@@ -29,6 +29,7 @@ public class Servidirectorios extends JavaPlugin {
 
         // Inicializar base de datos
         DatabaseManager.init(this);
+        DatabaseManager.cleanupExpiredSlotsPublic();
 
         // Registrar comandos
         this.getCommand("directorios").setExecutor(new DirectoriosCommand(this));

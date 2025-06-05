@@ -64,7 +64,7 @@ public class BuySlotGUIListener implements Listener {
                 double cost = cfg.getDouble("slot-prices." + priceIndex, 0.0);
                 boolean credit = slot >= creditStart && slot <= creditEnd;
 
-                BuySlotWeeksGUI.open(player, cost, credit);
+                BuySlotWeeksGUI.open(player, cost, credit, priceIndex);
             }
         }
     }
