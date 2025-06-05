@@ -25,9 +25,9 @@ public class BuySlotWeeksGUI {
         playerSlot.put(player.getUniqueId(), slotIndex);
 
         Inventory inv = Bukkit.createInventory(null, 27, "Comprar puesto");
-        inv.setItem(9, buildItem(Material.IRON_NUGGET, ChatColor.RED + "Reducir 1 semana", null));
-        inv.setItem(11, buildPayItem(player));
-        inv.setItem(13, buildItem(Material.GOLD_NUGGET, ChatColor.GREEN + "Incrementar una semana", null));
+        inv.setItem(11, buildItem(Material.IRON_NUGGET, ChatColor.RED + "Reducir 1 semana", null));
+        inv.setItem(13, buildPayItem(player));
+        inv.setItem(15, buildItem(Material.GOLD_NUGGET, ChatColor.GREEN + "Incrementar una semana", null));
 
         fillEmptySlots(inv, Material.BLACK_STAINED_GLASS_PANE, " ");
 
