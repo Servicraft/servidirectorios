@@ -20,11 +20,13 @@ import org.bukkit.Bukkit;
 public class DatabaseManager {
 
     private static Connection connection;
+    private static String dbType;
 
     public static void init(JavaPlugin plugin) {
         FileConfiguration config = plugin.getConfig();
         String type = config.getString("database.type", "h2");
-        if (type.equalsIgnoreCase("mysql")) {
+        dbType = type.toLowerCase();
+        if (dbType.equals("mysql")) {
             String host = config.getString("database.mysql.host");
             String port = config.getString("database.mysql.port");
             String db = config.getString("database.mysql.database");
@@ -182,7 +184,13 @@ public class DatabaseManager {
         int shortcutId = createShortcut(playerName, "Tienda de " + playerName, loc);
         if (shortcutId == -1) return;
         long expires = System.currentTimeMillis() + weeks * 7L * 24L * 60L * 60L * 1000L;
-        String sql = "INSERT OR REPLACE INTO slots(slot_index, shortcut_id, expires) VALUES(?,?,?)";
+        String sql;
+        if ("mysql".equals(dbType)) {
+            sql = "INSERT INTO slots(slot_index, shortcut_id, expires) VALUES(?,?,?) " +
+                    "ON DUPLICATE KEY UPDATE shortcut_id=VALUES(shortcut_id), expires=VALUES(expires)";
+        } else {
+            sql = "MERGE INTO slots KEY(slot_index) VALUES(?,?,?)";
+        }
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, slotIndex);
             ps.setInt(2, shortcutId);
