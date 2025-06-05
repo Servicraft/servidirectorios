@@ -29,27 +29,41 @@ public class BuySlotGUI {
         int servEnd = cfg.getInt("servidolar-slots.end");
 
         // Ejemplo simple de ocupación: los dos primeros puestos de créditos ocupados
+
+        int servSlotsPerPage = servEnd - servStart + 1;
+
         for (int slot = 0; slot < inv.getSize(); slot++) {
             boolean isCredit = slot >= creditStart && slot <= creditEnd;
-            boolean isServ = slot >= servStart && slot <= servEnd;
-            if (!isCredit && !isServ) continue;
+            boolean isServDisplay = slot >= servStart && slot <= servEnd;
+            if (!isCredit && !isServDisplay) continue;
 
-            double price = cfg.getDouble("slot-prices." + slot, 0.0);
+            int priceIndex = slot;
+            if (isServDisplay && page > 1) {
+                priceIndex = slot + servSlotsPerPage * (page - 1);
+            }
+            double price = cfg.getDouble("slot-prices." + priceIndex, 0.0);
             boolean ocupado = isCredit && (slot == creditStart || slot == creditStart + 1);
 
-            Material mat = ocupado ? Material.RED_STAINED_GLASS_PANE : Material.GREEN_STAINED_GLASS_PANE;
+            Material mat = ocupado ? Material.RED_STAINED_GLASS_PANE : Material.LIME_STAINED_GLASS_PANE;
             String nombre = (ocupado ? ChatColor.RED : ChatColor.GREEN) + "Puesto " + (slot + 1);
-            if (!ocupado) nombre += " - ¡Disponible!";
 
             List<String> lore = new ArrayList<>();
             if (ocupado) {
-                lore.add(ChatColor.GRAY + "Contrato expira en: " + (slot == creditStart ? 9 : 2) + " días");
+                lore.add(ChatColor.GRAY + "Contrato expira en");
+                lore.add(ChatColor.GRAY + String.valueOf(slot == creditStart ? 9 : 2) + " días");
             } else {
-                lore.add(ChatColor.YELLOW + "Haz clic para comprar este puesto!");
+                lore.add(ChatColor.GRAY + "¡Haz clic para comprar");
+                lore.add(ChatColor.GRAY + "este puesto!");
             }
-            ChatColor color = isCredit ? ChatColor.BLUE : ChatColor.GREEN;
-            String moneda = isCredit ? "créditos" : "servidólares";
-            lore.add(color + "Valor semanal: " + price + " " + moneda);
+            lore.add(" ");
+            lore.add(ChatColor.GRAY + "Valor semanal:");
+            if (isCredit) {
+                String formatted = String.format(java.util.Locale.US, "%.2f", price).replace('.', ',');
+                lore.add(ChatColor.AQUA + formatted + " créditos");
+            } else {
+                String formatted = java.text.NumberFormat.getInstance(java.util.Locale.GERMAN).format(price);
+                lore.add(ChatColor.GREEN + "$" + formatted + "servi" + ChatColor.DARK_GREEN + "dólares");
+            }
 
             inv.setItem(slot, buildItem(mat, nombre, lore));
         }
