@@ -3,7 +3,6 @@ package org.servicraft.servidirectorios;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.servicraft.servidirectorios.commands.DirectoriosCommand;
-import org.servicraft.servidirectorios.commands.CreateShortcutCommand;
 import org.servicraft.servidirectorios.listeners.BuySlotGUIListener;
 import org.servicraft.servidirectorios.listeners.BuySlotWeeksGUIListener;
 import org.servicraft.servidirectorios.listeners.ShortcutMenuListener;
@@ -38,7 +37,6 @@ public class Servidirectorios extends JavaPlugin {
         DirectoriosCommand dirCmd = new DirectoriosCommand(this);
         this.getCommand("directorios").setExecutor(dirCmd);
         this.getCommand("directorios").setTabCompleter(dirCmd);
-        this.getCommand("createshortcut").setExecutor(new CreateShortcutCommand());
         
         // Registrar listeners para las GUIs
         getServer().getPluginManager().registerEvents(new BuySlotGUIListener(), this);
