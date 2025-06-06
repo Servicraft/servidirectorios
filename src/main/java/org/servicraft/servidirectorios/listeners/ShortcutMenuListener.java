@@ -10,6 +10,8 @@ import org.servicraft.servidirectorios.gui.ShortcutMenu;
 import org.servicraft.servidirectorios.gui.EditSlotGUI;
 import org.servicraft.servidirectorios.model.Shortcut;
 import org.servicraft.servidirectorios.util.Message;
+import org.servicraft.servidirectorios.gui.ShortcutMenu;
+import org.servicraft.servidirectorios.gui.EditSlotGUI;
 
 public class ShortcutMenuListener implements Listener {
 

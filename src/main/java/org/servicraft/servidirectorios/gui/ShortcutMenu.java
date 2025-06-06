@@ -13,6 +13,7 @@ import org.servicraft.servidirectorios.model.Shortcut;
 import java.util.*;
 
 public class ShortcutMenu {
+    private static final java.util.Set<java.util.UUID> adminViewers = new java.util.HashSet<>();
 
     private static final Set<UUID> adminViewers = new HashSet<>();
     private static final Map<UUID, Integer> playerPages = new HashMap<>();
