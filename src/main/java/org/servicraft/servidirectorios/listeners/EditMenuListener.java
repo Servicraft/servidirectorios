@@ -82,6 +82,26 @@ public class EditMenuListener implements Listener {
                 double price = cfg.getDouble("slot-prices." + slotIndex, 0.0);
                 boolean credit = slotIndex >= creditStart && slotIndex <= creditEnd;
                 BuySlotWeeksGUI.open(player, price, credit, slotIndex);
+            } else if (slot == 22 && EditSlotGUI.isAdminEditor(player)) {
+                String owner = DatabaseManager.getSlotOwner(slotIndex);
+                int days = DatabaseManager.getRemainingDays(slotIndex);
+                org.bukkit.configuration.file.FileConfiguration cfg = org.bukkit.plugin.java.JavaPlugin.getPlugin(org.servicraft.servidirectorios.Servidirectorios.class).getConfig();
+                double price = cfg.getDouble("slot-prices." + slotIndex, 0.0);
+                double refund = price * days / 7.0;
+                net.milkbowl.vault.economy.Economy econ = org.servicraft.servidirectorios.Servidirectorios.getEconomy();
+                if (econ != null && owner != null) {
+                    econ.depositPlayer(org.bukkit.Bukkit.getOfflinePlayer(owner), refund);
+                }
+                if (owner != null) {
+                    org.bukkit.entity.Player target = org.bukkit.Bukkit.getPlayerExact(owner);
+                    if (target != null) {
+                        target.sendMessage(Message.DIRECTORY_REMOVED_OWNER.get().replace("{amount}", String.format(java.util.Locale.US, "%.2f", refund)));
+                    }
+                }
+                DatabaseManager.deleteSlot(slotIndex);
+                player.sendMessage(Message.DIRECTORY_REMOVED.get().replace("{amount}", String.format(java.util.Locale.US, "%.2f", refund)));
+                EditSlotGUI.clearAdmin(player);
+                BuySlotGUI.open(player, 1);
             } else if (slot == 26) {
                 BuySlotGUI.open(player, 1);
             }
