@@ -32,7 +32,10 @@ public class EditListGUI {
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
                 meta.setDisplayName(e.getValue().getName());
-                meta.setLore(java.util.Arrays.asList(e.getValue().getDescription()));
+                java.util.List<String> lore = java.util.Arrays.stream(e.getValue().getDescription().split("\\n"))
+                        .map(s -> org.bukkit.ChatColor.GRAY + s)
+                        .collect(java.util.stream.Collectors.toList());
+                meta.setLore(lore);
                 item.setItemMeta(meta);
             }
             inv.setItem(index, item);
