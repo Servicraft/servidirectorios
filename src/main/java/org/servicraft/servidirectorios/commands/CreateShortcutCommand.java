@@ -29,7 +29,7 @@ public class CreateShortcutCommand implements CommandExecutor {
         }
         String desc = sb.toString().trim();
         Location loc = player.getLocation();
-        DatabaseManager.createShortcut(name, desc, loc);
+        DatabaseManager.createShortcut(name, desc, loc, org.bukkit.Material.CHEST);
         player.sendMessage(ChatColor.GREEN + Message.SHORTCUT_CREATED.get().replace("{name}", name));
         return true;
     }

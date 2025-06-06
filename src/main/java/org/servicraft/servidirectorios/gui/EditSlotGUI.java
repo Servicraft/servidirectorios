@@ -20,7 +20,7 @@ public class EditSlotGUI {
     public static void open(Player player, int slotIndex, Shortcut sc) {
         current.put(player.getUniqueId(), slotIndex);
         Inventory inv = Bukkit.createInventory(null, 27, Message.EDIT_MENU_TITLE.get());
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < inv.getSize(); i++) {
             ItemStack glass = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
             ItemMeta m = glass.getItemMeta();
             if (m != null) {
@@ -29,7 +29,7 @@ public class EditSlotGUI {
             }
             inv.setItem(i, glass);
         }
-        ItemStack icon = new ItemStack(Material.CHEST);
+        ItemStack icon = new ItemStack(sc.getIcon());
         ItemMeta meta = icon.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(Message.EDIT_ICON.get());
@@ -63,7 +63,7 @@ public class EditSlotGUI {
         }
         inv.setItem(14, stick);
 
-        ItemStack buyMore = new ItemStack(Material.EMERALD);
+        ItemStack buyMore = new ItemStack(Material.EXPERIENCE_BOTTLE);
         meta = buyMore.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(Message.BUY_MORE_DAYS.get());

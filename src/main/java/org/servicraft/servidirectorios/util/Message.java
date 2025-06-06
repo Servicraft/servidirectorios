@@ -55,7 +55,11 @@ public enum Message {
     BUY_MORE_DAYS("buy-more-days", "&aComprar más días"),
     REMAINING_DAYS("remaining-days", "&7{days} días restantes"),
     BACK_TO_PROMOTED("back-to-promoted", "&fVolver a los puestos promocionados"),
-    CLICK_TO_EDIT("click-to-edit", "Haz clic para editar");
+    CLICK_TO_EDIT("click-to-edit", "Haz clic para editar"),
+    ENTER_TITLE("enter-title", "&aEscribe el título o 'cancelar' para cancelar"),
+    ENTER_LORE("enter-lore", "&aEscribe hasta 5 líneas separadas por | o 'cancelar'"),
+    UPDATED("updated", "Actualizado"),
+    EDIT_CANCELLED("edit-cancelled", "Edición cancelada.");
 
     private static YamlConfiguration config;
     private final String path;

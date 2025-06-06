@@ -28,7 +28,7 @@ public class EditListGUI {
         }
         int index = 0;
         for (Map.Entry<Integer, Shortcut> e : owned.entrySet()) {
-            ItemStack item = new ItemStack(Material.CHEST);
+            ItemStack item = new ItemStack(e.getValue().getIcon());
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
                 meta.setDisplayName(e.getValue().getName());
