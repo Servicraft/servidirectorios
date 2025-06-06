@@ -13,6 +13,7 @@ import org.servicraft.servidirectorios.model.Shortcut;
 import java.util.List;
 
 public class ShortcutMenu {
+    private static final java.util.Set<java.util.UUID> adminViewers = new java.util.HashSet<>();
 
     public static void open(Player player) {
         java.util.Map<Integer, Shortcut> shortcuts = DatabaseManager.getActiveShortcutMap();
@@ -49,5 +50,18 @@ public class ShortcutMenu {
         }
 
         player.openInventory(inv);
+    }
+
+    public static void openAdmin(Player player) {
+        adminViewers.add(player.getUniqueId());
+        open(player);
+    }
+
+    public static boolean isAdminViewer(Player player) {
+        return adminViewers.contains(player.getUniqueId());
+    }
+
+    public static void clearAdmin(Player player) {
+        adminViewers.remove(player.getUniqueId());
     }
 }
