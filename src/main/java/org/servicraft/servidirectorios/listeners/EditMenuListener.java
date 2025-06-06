@@ -34,11 +34,13 @@ public class EditMenuListener implements Listener {
         if (title.equals(Message.EDIT_DIRECTORIES_TITLE.get())) {
             event.setCancelled(true);
             ItemStack item = event.getCurrentItem();
-            if (item != null && item.getType() == Material.CHEST) {
+            if (item != null && item.getType() != Material.BLACK_STAINED_GLASS_PANE) {
                 int index = event.getRawSlot();
                 Map<Integer, Shortcut> owned = DatabaseManager.getOwnedShortcuts(player.getName());
-                int slotIndex = (Integer) owned.keySet().toArray()[index];
-                EditSlotGUI.open(player, slotIndex, owned.get(slotIndex));
+                if (index < owned.size()) {
+                    int slotIndex = (Integer) owned.keySet().toArray()[index];
+                    EditSlotGUI.open(player, slotIndex, owned.get(slotIndex));
+                }
             }
         } else if (title.equals(Message.EDIT_MENU_TITLE.get())) {
             boolean top = event.getRawSlot() < event.getInventory().getSize();
