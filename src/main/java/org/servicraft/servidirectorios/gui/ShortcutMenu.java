@@ -22,7 +22,7 @@ public class ShortcutMenu {
             int slot = entry.getKey();
             if (slot >= inv.getSize()) continue;
             Shortcut sc = entry.getValue();
-            ItemStack item = new ItemStack(Material.CHEST);
+            ItemStack item = new ItemStack(sc.getIcon());
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
                 meta.setDisplayName(ChatColor.GREEN + sc.getName());

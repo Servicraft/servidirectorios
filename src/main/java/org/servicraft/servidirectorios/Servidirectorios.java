@@ -35,7 +35,9 @@ public class Servidirectorios extends JavaPlugin {
         DatabaseManager.cleanupExpiredSlotsPublic();
 
         // Registrar comandos
-        this.getCommand("directorios").setExecutor(new DirectoriosCommand(this));
+        DirectoriosCommand dirCmd = new DirectoriosCommand(this);
+        this.getCommand("directorios").setExecutor(dirCmd);
+        this.getCommand("directorios").setTabCompleter(dirCmd);
         this.getCommand("createshortcut").setExecutor(new CreateShortcutCommand());
         
         // Registrar listeners para las GUIs

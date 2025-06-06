@@ -13,9 +13,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.servicraft.servidirectorios.model.Shortcut;
 import org.bukkit.Location;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.servicraft.servidirectorios.model.Shortcut;
 
 public class DatabaseManager {
 
@@ -66,6 +67,7 @@ public class DatabaseManager {
                 "id INT AUTO_INCREMENT PRIMARY KEY," +
                 "name VARCHAR(32) NOT NULL," +
                 "description VARCHAR(100)," +
+                "icon VARCHAR(32) DEFAULT 'CHEST'," +
                 "world VARCHAR(32) NOT NULL," +
                 "x DOUBLE NOT NULL," +
                 "y DOUBLE NOT NULL," +
@@ -83,6 +85,9 @@ public class DatabaseManager {
         connection.createStatement().executeUpdate(slots);
         try {
             connection.createStatement().executeUpdate("ALTER TABLE slots ADD COLUMN IF NOT EXISTS owner VARCHAR(32) NOT NULL DEFAULT ''");
+        } catch (SQLException ignore) {}
+        try {
+            connection.createStatement().executeUpdate("ALTER TABLE shortcuts ADD COLUMN IF NOT EXISTS icon VARCHAR(32) DEFAULT 'CHEST'");
         } catch (SQLException ignore) {}
     }
 
@@ -103,7 +108,8 @@ public class DatabaseManager {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("description"),
-                        loc);
+                        loc,
+                        Material.valueOf(rs.getString("icon")));
                 list.add(sc);
             }
         } catch (SQLException e) {
@@ -112,18 +118,19 @@ public class DatabaseManager {
         return list;
     }
 
-    public static int createShortcut(String name, String description, Location loc) {
+    public static int createShortcut(String name, String description, Location loc, Material icon) {
         if (connection == null) return -1;
-        String sql = "INSERT INTO shortcuts(name, description, world, x, y, z, yaw, pitch) VALUES(?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO shortcuts(name, description, icon, world, x, y, z, yaw, pitch) VALUES(?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, name);
             ps.setString(2, description);
-            ps.setString(3, loc.getWorld().getName());
-            ps.setDouble(4, loc.getX());
-            ps.setDouble(5, loc.getY());
-            ps.setDouble(6, loc.getZ());
-            ps.setFloat(7, loc.getYaw());
-            ps.setFloat(8, loc.getPitch());
+            ps.setString(3, icon.name());
+            ps.setString(4, loc.getWorld().getName());
+            ps.setDouble(5, loc.getX());
+            ps.setDouble(6, loc.getY());
+            ps.setDouble(7, loc.getZ());
+            ps.setFloat(8, loc.getYaw());
+            ps.setFloat(9, loc.getPitch());
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
@@ -216,7 +223,8 @@ public class DatabaseManager {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("description"),
-                        loc);
+                        loc,
+                        Material.valueOf(rs.getString("icon")));
                 map.put(rs.getInt("slot_index"), sc);
             }
         } catch (SQLException e) {
@@ -225,7 +233,7 @@ public class DatabaseManager {
         return map;
     }
 
-    public static void updateShortcutBySlot(int slotIndex, String name, String description, Location loc) {
+    public static void updateShortcutBySlot(int slotIndex, String name, String description, Location loc, Material icon) {
         if (connection == null) return;
         String getId = "SELECT shortcut_id FROM slots WHERE slot_index = ?";
         try (PreparedStatement ps = connection.prepareStatement(getId)) {
@@ -233,17 +241,18 @@ public class DatabaseManager {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt(1);
-                String sql = "UPDATE shortcuts SET name=?, description=?, world=?, x=?, y=?, z=?, yaw=?, pitch=? WHERE id=?";
+                String sql = "UPDATE shortcuts SET name=?, description=?, icon=?, world=?, x=?, y=?, z=?, yaw=?, pitch=? WHERE id=?";
                 try (PreparedStatement ps2 = connection.prepareStatement(sql)) {
                     ps2.setString(1, name);
                     ps2.setString(2, description);
-                    ps2.setString(3, loc.getWorld().getName());
-                    ps2.setDouble(4, loc.getX());
-                    ps2.setDouble(5, loc.getY());
-                    ps2.setDouble(6, loc.getZ());
-                    ps2.setFloat(7, loc.getYaw());
-                    ps2.setFloat(8, loc.getPitch());
-                    ps2.setInt(9, id);
+                    ps2.setString(3, icon.name());
+                    ps2.setString(4, loc.getWorld().getName());
+                    ps2.setDouble(5, loc.getX());
+                    ps2.setDouble(6, loc.getY());
+                    ps2.setDouble(7, loc.getZ());
+                    ps2.setFloat(8, loc.getYaw());
+                    ps2.setFloat(9, loc.getPitch());
+                    ps2.setInt(10, id);
                     ps2.executeUpdate();
                 }
             }
@@ -254,7 +263,7 @@ public class DatabaseManager {
 
     public static void purchaseSlot(int slotIndex, int weeks, String playerName, Location loc) {
         if (connection == null) return;
-        int shortcutId = createShortcut(playerName, "Tienda de " + playerName, loc);
+        int shortcutId = createShortcut(playerName, "Tienda de " + playerName, loc, Material.CHEST);
         if (shortcutId == -1) return;
         long expires = System.currentTimeMillis() + weeks * 7L * 24L * 60L * 60L * 1000L;
         String sql;
@@ -296,12 +305,45 @@ public class DatabaseManager {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("description"),
-                        loc);
+                        loc,
+                        Material.valueOf(rs.getString("icon")));
                 map.put(rs.getInt("slot_index"), sc);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return map;
+    }
+
+    public static void extendSlot(int slotIndex, int weeks) {
+        if (connection == null) return;
+        String sql = "UPDATE slots SET expires = expires + ? WHERE slot_index = ?";
+        long add = weeks * 7L * 24L * 60L * 60L * 1000L;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, add);
+            ps.setInt(2, slotIndex);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateIconBySlot(int slotIndex, Material icon) {
+        if (connection == null) return;
+        String getId = "SELECT shortcut_id FROM slots WHERE slot_index = ?";
+        try (PreparedStatement ps = connection.prepareStatement(getId)) {
+            ps.setInt(1, slotIndex);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt(1);
+                try (PreparedStatement ps2 = connection.prepareStatement("UPDATE shortcuts SET icon=? WHERE id=?")) {
+                    ps2.setString(1, icon.name());
+                    ps2.setInt(2, id);
+                    ps2.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

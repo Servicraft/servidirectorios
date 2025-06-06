@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.servicraft.servidirectorios.database.DatabaseManager;
 import org.servicraft.servidirectorios.gui.BuySlotGUI;
+import org.servicraft.servidirectorios.gui.BuySlotWeeksGUI;
 import org.servicraft.servidirectorios.gui.EditListGUI;
 import org.servicraft.servidirectorios.gui.EditSlotGUI;
 import org.servicraft.servidirectorios.model.Shortcut;
@@ -20,7 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EditMenuListener implements Listener {
-    private final Map<Player, Integer> renameMap = new HashMap<>();
+    private final Map<Player, Integer> renameTitle = new HashMap<>();
+    private final Map<Player, Integer> renameLore = new HashMap<>();
+    private final Map<Player, String> tempName = new HashMap<>();
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -41,18 +44,36 @@ public class EditMenuListener implements Listener {
             if (item == null) return;
             int slot = event.getRawSlot();
             int slotIndex = EditSlotGUI.getEditingSlot(player);
-            if (slot == 11) {
-                renameMap.put(player, slotIndex);
+            if (slot == 10) {
+                ItemStack cursor = event.getCursor();
+                if (cursor != null && cursor.getType() != Material.AIR) {
+                    ItemStack newIcon = new ItemStack(cursor.getType());
+                    ItemMeta m = newIcon.getItemMeta();
+                    if (m != null) {
+                        m.setDisplayName(Message.EDIT_ICON.get());
+                        newIcon.setItemMeta(m);
+                    }
+                    event.getInventory().setItem(10, newIcon);
+                    DatabaseManager.updateIconBySlot(slotIndex, cursor.getType());
+                }
+            } else if (slot == 11) {
+                renameTitle.put(player, slotIndex);
                 player.closeInventory();
-                player.sendMessage(ChatColor.AQUA + "Ingresa nombre|descripcion en el chat");
+                player.sendMessage(Message.ENTER_TITLE.get());
             } else if (slot == 13) {
-                DatabaseManager.updateShortcutBySlot(slotIndex, DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex).getName(), DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex).getDescription(), player.getLocation());
+                Shortcut sc = DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex);
+                DatabaseManager.updateShortcutBySlot(slotIndex, sc.getName(), sc.getDescription(), player.getLocation(), sc.getIcon());
                 EditSlotGUI.open(player, slotIndex, DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex));
             } else if (slot == 14) {
                 Shortcut sc = DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex);
                 player.teleport(sc.getLocation());
             } else if (slot == 16) {
-                BuySlotGUI.open(player, BuySlotGUI.getCurrentPage(player));
+                org.bukkit.configuration.file.FileConfiguration cfg = org.bukkit.plugin.java.JavaPlugin.getPlugin(org.servicraft.servidirectorios.Servidirectorios.class).getConfig();
+                int creditStart = cfg.getInt("credit-slots.start");
+                int creditEnd = cfg.getInt("credit-slots.end");
+                double price = cfg.getDouble("slot-prices." + slotIndex, 0.0);
+                boolean credit = slotIndex >= creditStart && slotIndex <= creditEnd;
+                BuySlotWeeksGUI.open(player, price, credit, slotIndex);
             } else if (slot == 26) {
                 BuySlotGUI.open(player, 1);
             }
@@ -62,17 +83,48 @@ public class EditMenuListener implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        if (renameMap.containsKey(player)) {
-            int slotIndex = renameMap.remove(player);
+        if (renameTitle.containsKey(player)) {
+            int slotIndex = renameTitle.remove(player);
             event.setCancelled(true);
-            String msg = ChatColor.translateAlternateColorCodes('&', event.getMessage());
-            String[] parts = msg.split("\\|", 2);
-            String name = parts[0];
-            String desc = parts.length > 1 ? parts[1] : "";
+            String msg = colorize(event.getMessage());
+            if (msg.equalsIgnoreCase("cancel") || msg.equalsIgnoreCase("cancelar")) {
+                player.sendMessage(Message.EDIT_CANCELLED.get());
+                return;
+            }
+            tempName.put(player, msg);
+            renameLore.put(player, slotIndex);
+            player.sendMessage(Message.ENTER_LORE.get());
+        } else if (renameLore.containsKey(player)) {
+            int slotIndex = renameLore.remove(player);
+            event.setCancelled(true);
+            String msg = colorize(event.getMessage());
+            if (msg.equalsIgnoreCase("cancel") || msg.equalsIgnoreCase("cancelar")) {
+                tempName.remove(player);
+                player.sendMessage(Message.EDIT_CANCELLED.get());
+                return;
+            }
+            String[] loreParts = msg.split("\\|");
+            if (loreParts.length > 5) {
+                loreParts = java.util.Arrays.copyOfRange(loreParts, 0, 5);
+            }
+            String desc = String.join("\n", loreParts);
+            String name = tempName.remove(player);
             Shortcut sc = DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex);
-            DatabaseManager.updateShortcutBySlot(slotIndex, name, desc, sc.getLocation());
-            player.sendMessage(ChatColor.GREEN + "Actualizado");
+            DatabaseManager.updateShortcutBySlot(slotIndex, name, desc, sc.getLocation(), sc.getIcon());
+            player.sendMessage(Message.UPDATED.get());
             EditSlotGUI.open(player, slotIndex, DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex));
         }
+    }
+
+    private String colorize(String text) {
+        String result = ChatColor.translateAlternateColorCodes('&', text);
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("#[a-fA-F0-9]{6}").matcher(result);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            String color = m.group();
+            m.appendReplacement(sb, net.md_5.bungee.api.ChatColor.of(color) + "");
+        }
+        m.appendTail(sb);
+        return sb.toString();
     }
 }

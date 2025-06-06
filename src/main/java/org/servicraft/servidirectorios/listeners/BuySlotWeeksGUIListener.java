@@ -49,7 +49,11 @@ public class BuySlotWeeksGUIListener implements Listener {
                         success = false;
                     }
                     if (success) {
-                        org.servicraft.servidirectorios.database.DatabaseManager.purchaseSlot(slotIndex, weeks, target.getName(), target.getLocation());
+                        if (target.getName().equalsIgnoreCase(org.servicraft.servidirectorios.database.DatabaseManager.getSlotOwner(slotIndex))) {
+                            org.servicraft.servidirectorios.database.DatabaseManager.extendSlot(slotIndex, weeks);
+                        } else {
+                            org.servicraft.servidirectorios.database.DatabaseManager.purchaseSlot(slotIndex, weeks, target.getName(), target.getLocation());
+                        }
                         org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> target.sendMessage(Message.BUY_SUCCESS.get()));
                     } else {
                         org.bukkit.Bukkit.getScheduler().runTask(org.bukkit.Bukkit.getPluginManager().getPlugin("servidirectorios"), () -> target.sendMessage(Message.NOT_ENOUGH_CREDITS.get()));
@@ -64,7 +68,11 @@ public class BuySlotWeeksGUIListener implements Listener {
                 if (econ.getBalance(player) >= price) {
                     net.milkbowl.vault.economy.EconomyResponse resp = econ.withdrawPlayer(player, price);
                     if (resp.transactionSuccess()) {
-                        org.servicraft.servidirectorios.database.DatabaseManager.purchaseSlot(slotIndex, weeks, player.getName(), player.getLocation());
+                        if (player.getName().equalsIgnoreCase(org.servicraft.servidirectorios.database.DatabaseManager.getSlotOwner(slotIndex))) {
+                            org.servicraft.servidirectorios.database.DatabaseManager.extendSlot(slotIndex, weeks);
+                        } else {
+                            org.servicraft.servidirectorios.database.DatabaseManager.purchaseSlot(slotIndex, weeks, player.getName(), player.getLocation());
+                        }
                         player.sendMessage(Message.BUY_SUCCESS.get());
                     } else {
                         player.sendMessage(Message.TRANSACTION_FAILED.get());
