@@ -91,7 +91,7 @@ public class BuySlotWeeksGUI {
         int weeks = playerWeeks.getOrDefault(player.getUniqueId(), 1);
         weeks++;
         playerWeeks.put(player.getUniqueId(), weeks);
-        inv.setItem(12, buildPayItem(player));
+        inv.setItem(13, buildPayItem(player));
     }
 
     public static void decrementWeeks(Player player, Inventory inv) {
@@ -99,7 +99,7 @@ public class BuySlotWeeksGUI {
         if (weeks > 1) {
             weeks--;
             playerWeeks.put(player.getUniqueId(), weeks);
-            inv.setItem(12, buildPayItem(player));
+            inv.setItem(13, buildPayItem(player));
         }
     }
 
