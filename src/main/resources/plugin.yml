@@ -6,9 +6,6 @@ commands:
     directorios:
       description: Abre el menú principal de directorios (atajos y tiendas).
       usage: /directorios [tiendas]
-    createshortcut:
-      description: Crea un nuevo atajo en tu ubicación actual.
-      usage: /createshortcut <nombre> <descripcion>
     servidirectorios:
       description: Comandos administrativos de Servidirectorios
       usage: /servidirectorios admin
