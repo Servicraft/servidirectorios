@@ -59,7 +59,10 @@ public enum Message {
     ENTER_TITLE("enter-title", "&aEscribe el título o 'cancelar' para cancelar"),
     ENTER_LORE("enter-lore", "&aEscribe hasta 5 líneas separadas por | o 'cancelar'"),
     UPDATED("updated", "Actualizado"),
-    EDIT_CANCELLED("edit-cancelled", "Edición cancelada.");
+    EDIT_CANCELLED("edit-cancelled", "Edición cancelada."),
+    ADMIN_DELETE_REFUND("admin-delete-refund", "&eEliminar y devolver dinero al propietario"),
+    DIRECTORY_REMOVED("directory-removed", "Directorio eliminado y se devolvió {amount} al propietario."),
+    DIRECTORY_REMOVED_OWNER("directory-removed-owner", "Tu directorio fue eliminado y se te devolvió {amount}.");
 
     private static YamlConfiguration config;
     private final String path;

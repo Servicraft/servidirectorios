@@ -346,4 +346,26 @@ public class DatabaseManager {
             e.printStackTrace();
         }
     }
+
+    public static void deleteSlot(int slotIndex) {
+        if (connection == null) return;
+        String select = "SELECT shortcut_id FROM slots WHERE slot_index = ?";
+        try (PreparedStatement ps = connection.prepareStatement(select)) {
+            ps.setInt(1, slotIndex);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt(1);
+                try (PreparedStatement ps2 = connection.prepareStatement("DELETE FROM slots WHERE slot_index = ?")) {
+                    ps2.setInt(1, slotIndex);
+                    ps2.executeUpdate();
+                }
+                try (PreparedStatement ps3 = connection.prepareStatement("DELETE FROM shortcuts WHERE id = ?")) {
+                    ps3.setInt(1, id);
+                    ps3.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

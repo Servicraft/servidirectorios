@@ -6,3 +6,10 @@ commands:
     directorios:
       description: Abre el menú principal de directorios (atajos y tiendas).
       usage: /directorios [tiendas]
+    servidirectorios:
+      description: Comandos administrativos de Servidirectorios
+      usage: /servidirectorios admin
+permissions:
+  servidirectorios.admin:
+    description: Permite eliminar puestos y reembolsar al propietario
+    default: op

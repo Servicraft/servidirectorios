@@ -16,8 +16,18 @@ import java.util.Map;
 
 public class EditSlotGUI {
     private static final Map<java.util.UUID, Integer> current = new HashMap<>();
+    private static final java.util.Set<java.util.UUID> adminEditors = new java.util.HashSet<>();
 
     public static void open(Player player, int slotIndex, Shortcut sc) {
+        open(player, slotIndex, sc, false);
+    }
+
+    public static void openAdmin(Player player, int slotIndex, Shortcut sc) {
+        adminEditors.add(player.getUniqueId());
+        open(player, slotIndex, sc, true);
+    }
+
+    private static void open(Player player, int slotIndex, Shortcut sc, boolean admin) {
         current.put(player.getUniqueId(), slotIndex);
         Inventory inv = Bukkit.createInventory(null, 27, Message.EDIT_MENU_TITLE.get());
         for (int i = 0; i < inv.getSize(); i++) {
@@ -73,6 +83,16 @@ public class EditSlotGUI {
         }
         inv.setItem(16, buyMore);
 
+        if (admin) {
+            ItemStack barrier = new ItemStack(Material.BARRIER);
+            meta = barrier.getItemMeta();
+            if (meta != null) {
+                meta.setDisplayName(Message.ADMIN_DELETE_REFUND.get());
+                barrier.setItemMeta(meta);
+            }
+            inv.setItem(22, barrier);
+        }
+
         ItemStack back = new ItemStack(Material.BLACK_GLAZED_TERRACOTTA);
         meta = back.getItemMeta();
         if (meta != null) {
@@ -86,5 +106,13 @@ public class EditSlotGUI {
 
     public static int getEditingSlot(Player player) {
         return current.getOrDefault(player.getUniqueId(), -1);
+    }
+
+    public static boolean isAdminEditor(Player player) {
+        return adminEditors.contains(player.getUniqueId());
+    }
+
+    public static void clearAdmin(Player player) {
+        adminEditors.remove(player.getUniqueId());
     }
 }

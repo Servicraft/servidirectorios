@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.servicraft.servidirectorios.gui.ShortcutMenu;
+import org.servicraft.servidirectorios.gui.EditSlotGUI;
 import org.servicraft.servidirectorios.model.Shortcut;
 import org.servicraft.servidirectorios.util.Message;
 
@@ -38,8 +39,14 @@ public class ShortcutMenuListener implements Listener {
             Shortcut sc = ShortcutMenu.getShortcut(player, slot);
             if (sc != null) {
                 player.closeInventory();
-                player.teleport(sc.getLocation());
-                player.sendMessage(Message.TELEPORTED_TO.get().replace("{name}", sc.getName()));
+                if (ShortcutMenu.isAdminViewer(player)) {
+                    int index = ShortcutMenu.getSlotIndex(player, slot);
+                    ShortcutMenu.clearAdmin(player);
+                    org.servicraft.servidirectorios.gui.EditSlotGUI.openAdmin(player, index, sc);
+                } else {
+                    player.teleport(sc.getLocation());
+                    player.sendMessage(Message.TELEPORTED_TO.get().replace("{name}", sc.getName()));
+                }
             }
         }
     }
