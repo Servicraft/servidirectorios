@@ -50,4 +50,5 @@ jar {
 shadowJar {
     // El JAR final incluirá las dependencias necesarias, sin clasificador extra
     archiveClassifier.set('')
+    destinationDirectory.set(file("/Users/ipozow/Downloads/testserver/server1/plugins"))
 }
