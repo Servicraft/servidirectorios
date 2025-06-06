@@ -1,5 +1,6 @@
 package org.servicraft.servidirectorios.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,6 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.servicraft.servidirectorios.database.DatabaseManager;
 import org.servicraft.servidirectorios.gui.BuySlotGUI;
 import org.servicraft.servidirectorios.gui.BuySlotWeeksGUI;
@@ -32,14 +34,20 @@ public class EditMenuListener implements Listener {
         if (title.equals(Message.EDIT_DIRECTORIES_TITLE.get())) {
             event.setCancelled(true);
             ItemStack item = event.getCurrentItem();
-            if (item != null && item.getType() == Material.CHEST) {
-                int index = event.getRawSlot();
-                Map<Integer, Shortcut> owned = DatabaseManager.getOwnedShortcuts(player.getName());
-                int slotIndex = (Integer) owned.keySet().toArray()[index];
-                EditSlotGUI.open(player, slotIndex, owned.get(slotIndex));
+            if (item != null) {
+                ItemMeta meta = item.getItemMeta();
+                if (meta != null && meta.hasDisplayName() && !" ".equals(meta.getDisplayName())) {
+                    int index = event.getRawSlot();
+                    Map<Integer, Shortcut> owned = DatabaseManager.getOwnedShortcuts(player.getName());
+                    if (index < owned.size()) {
+                        int slotIndex = (Integer) owned.keySet().toArray()[index];
+                        EditSlotGUI.open(player, slotIndex, owned.get(slotIndex));
+                    }
+                }
             }
         } else if (title.equals(Message.EDIT_MENU_TITLE.get())) {
-            event.setCancelled(true);
+            boolean top = event.getRawSlot() < event.getInventory().getSize();
+            if (top) event.setCancelled(true);
             ItemStack item = event.getCurrentItem();
             if (item == null) return;
             int slot = event.getRawSlot();
@@ -112,7 +120,8 @@ public class EditMenuListener implements Listener {
             Shortcut sc = DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex);
             DatabaseManager.updateShortcutBySlot(slotIndex, name, desc, sc.getLocation(), sc.getIcon());
             player.sendMessage(Message.UPDATED.get());
-            EditSlotGUI.open(player, slotIndex, DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex));
+            Bukkit.getScheduler().runTask(JavaPlugin.getPlugin(org.servicraft.servidirectorios.Servidirectorios.class),
+                    () -> EditSlotGUI.open(player, slotIndex, DatabaseManager.getOwnedShortcuts(player.getName()).get(slotIndex)));
         }
     }
 

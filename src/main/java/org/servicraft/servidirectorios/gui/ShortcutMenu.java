@@ -26,7 +26,10 @@ public class ShortcutMenu {
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
                 meta.setDisplayName(ChatColor.GREEN + sc.getName());
-                meta.setLore(java.util.Arrays.asList(ChatColor.GRAY + sc.getDescription()));
+                java.util.List<String> lore = java.util.Arrays.stream(sc.getDescription().split("\\n"))
+                        .map(s -> ChatColor.GRAY + s)
+                        .collect(java.util.stream.Collectors.toList());
+                meta.setLore(lore);
                 item.setItemMeta(meta);
             }
             inv.setItem(slot, item);
