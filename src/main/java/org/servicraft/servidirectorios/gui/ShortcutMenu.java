@@ -73,9 +73,9 @@ public class ShortcutMenu {
             magenta.setItemMeta(mm);
         }
 
-        if (page <= 1 && all.keySet().stream().anyMatch(i -> i >= servSlotsPerPage + servStart)) {
+        if (page <= 1) {
             inv.setItem(26, magenta);
-        } else if (page > 1) {
+        } else {
             inv.setItem(18, magenta);
         }
 
