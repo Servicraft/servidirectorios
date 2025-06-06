@@ -9,3 +9,10 @@ commands:
     createshortcut:
       description: Crea un nuevo atajo en tu ubicación actual.
       usage: /createshortcut <nombre> <descripcion>
+    servidirectorios:
+      description: Comandos administrativos de Servidirectorios
+      usage: /servidirectorios admin
+permissions:
+  servidirectorios.admin:
+    description: Permite eliminar puestos y reembolsar al propietario
+    default: op

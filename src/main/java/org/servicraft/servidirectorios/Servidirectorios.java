@@ -39,6 +39,7 @@ public class Servidirectorios extends JavaPlugin {
         this.getCommand("directorios").setExecutor(dirCmd);
         this.getCommand("directorios").setTabCompleter(dirCmd);
         this.getCommand("createshortcut").setExecutor(new CreateShortcutCommand());
+        this.getCommand("servidirectorios").setExecutor(new org.servicraft.servidirectorios.commands.AdminCommand());
         
         // Registrar listeners para las GUIs
         getServer().getPluginManager().registerEvents(new BuySlotGUIListener(), this);
