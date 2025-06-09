@@ -79,15 +79,24 @@ public class DatabaseManager {
                 "slot_index INT PRIMARY KEY," +
                 "shortcut_id INT NOT NULL," +
                 "expires BIGINT NOT NULL," +
-                "owner VARCHAR(32) NOT NULL" +
+                "owner VARCHAR(32) NOT NULL," +
+                "purchased BIGINT NOT NULL" +
+                ")";
+        String clicks = "CREATE TABLE IF NOT EXISTS clicks (" +
+                "slot_index INT NOT NULL," +
+                "timestamp BIGINT NOT NULL" +
                 ")";
         connection.createStatement().executeUpdate(shortcuts);
         connection.createStatement().executeUpdate(slots);
+        connection.createStatement().executeUpdate(clicks);
         try {
             connection.createStatement().executeUpdate("ALTER TABLE slots ADD COLUMN IF NOT EXISTS owner VARCHAR(32) NOT NULL DEFAULT ''");
         } catch (SQLException ignore) {}
         try {
             connection.createStatement().executeUpdate("ALTER TABLE shortcuts ADD COLUMN IF NOT EXISTS icon VARCHAR(32) DEFAULT 'CHEST'");
+        } catch (SQLException ignore) {}
+        try {
+            connection.createStatement().executeUpdate("ALTER TABLE slots ADD COLUMN IF NOT EXISTS purchased BIGINT NOT NULL DEFAULT 0");
         } catch (SQLException ignore) {}
     }
 
@@ -206,6 +215,34 @@ public class DatabaseManager {
         return null;
     }
 
+    public static long getSlotPurchaseTime(int slotIndex) {
+        cleanExpiredSlots();
+        if (connection == null) return 0L;
+        String sql = "SELECT purchased FROM slots WHERE slot_index = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, slotIndex);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getLong("purchased");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0L;
+    }
+
+    public static void recordClick(int slotIndex) {
+        if (connection == null) return;
+        String sql = "INSERT INTO clicks(slot_index, timestamp) VALUES(?,?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, slotIndex);
+            ps.setLong(2, System.currentTimeMillis());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static java.util.Map<Integer, Shortcut> getOwnedShortcuts(String player) {
         cleanExpiredSlots();
         java.util.Map<Integer, Shortcut> map = new java.util.LinkedHashMap<>();
@@ -266,18 +303,20 @@ public class DatabaseManager {
         int shortcutId = createShortcut(playerName, "Tienda de " + playerName, loc, Material.CHEST);
         if (shortcutId == -1) return;
         long expires = System.currentTimeMillis() + weeks * 7L * 24L * 60L * 60L * 1000L;
+        long purchased = System.currentTimeMillis();
         String sql;
         if ("mysql".equals(dbType)) {
-            sql = "INSERT INTO slots(slot_index, shortcut_id, expires, owner) VALUES(?,?,?,?) " +
-                    "ON DUPLICATE KEY UPDATE shortcut_id=VALUES(shortcut_id), expires=VALUES(expires), owner=VALUES(owner)";
+            sql = "INSERT INTO slots(slot_index, shortcut_id, expires, owner, purchased) VALUES(?,?,?,?,?) " +
+                    "ON DUPLICATE KEY UPDATE shortcut_id=VALUES(shortcut_id), expires=VALUES(expires), owner=VALUES(owner), purchased=VALUES(purchased)";
         } else {
-            sql = "MERGE INTO slots KEY(slot_index) VALUES(?,?,?,?)";
+            sql = "MERGE INTO slots KEY(slot_index) VALUES(?,?,?,?,?)";
         }
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, slotIndex);
             ps.setInt(2, shortcutId);
             ps.setLong(3, expires);
             ps.setString(4, playerName);
+            ps.setLong(5, purchased);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -367,5 +406,80 @@ public class DatabaseManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static java.util.Map<Integer, Integer> getClicksPerYear(int slotIndex, long since) {
+        java.util.Map<Integer, Integer> map = new java.util.LinkedHashMap<>();
+        if (connection == null) return map;
+        String sql = "SELECT timestamp FROM clicks WHERE slot_index=? AND timestamp>=?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, slotIndex);
+            ps.setLong(2, since);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                long ts = rs.getLong(1);
+                java.time.LocalDateTime dt = java.time.Instant.ofEpochMilli(ts)
+                        .atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+                int year = dt.getYear();
+                map.put(year, map.getOrDefault(year, 0) + 1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    public static java.util.Map<Integer, Integer> getClicksPerMonth(int slotIndex, int year, long since) {
+        java.util.Map<Integer, Integer> map = new java.util.LinkedHashMap<>();
+        if (connection == null) return map;
+        java.time.ZoneId zone = java.time.ZoneId.systemDefault();
+        long start = java.time.LocalDate.of(year, 1, 1).atStartOfDay(zone).toInstant().toEpochMilli();
+        long end = java.time.LocalDate.of(year + 1, 1, 1).atStartOfDay(zone).toInstant().toEpochMilli();
+        start = Math.max(start, since);
+        String sql = "SELECT timestamp FROM clicks WHERE slot_index=? AND timestamp>=? AND timestamp<?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, slotIndex);
+            ps.setLong(2, start);
+            ps.setLong(3, end);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                long ts = rs.getLong(1);
+                java.time.LocalDateTime dt = java.time.Instant.ofEpochMilli(ts)
+                        .atZone(zone).toLocalDateTime();
+                int month = dt.getMonthValue();
+                map.put(month, map.getOrDefault(month, 0) + 1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    public static java.util.Map<Integer, Integer> getClicksPerWeek(int slotIndex, int year, int month, long since) {
+        java.util.Map<Integer, Integer> map = new java.util.LinkedHashMap<>();
+        if (connection == null) return map;
+        java.time.ZoneId zone = java.time.ZoneId.systemDefault();
+        java.time.LocalDate first = java.time.LocalDate.of(year, month, 1);
+        long start = first.atStartOfDay(zone).toInstant().toEpochMilli();
+        long end = first.plusMonths(1).atStartOfDay(zone).toInstant().toEpochMilli();
+        start = Math.max(start, since);
+        String sql = "SELECT timestamp FROM clicks WHERE slot_index=? AND timestamp>=? AND timestamp<?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, slotIndex);
+            ps.setLong(2, start);
+            ps.setLong(3, end);
+            ResultSet rs = ps.executeQuery();
+            java.time.temporal.WeekFields wf = java.time.temporal.WeekFields.ISO;
+            while (rs.next()) {
+                long ts = rs.getLong(1);
+                java.time.LocalDateTime dt = java.time.Instant.ofEpochMilli(ts)
+                        .atZone(zone).toLocalDateTime();
+                int week = dt.get(wf.weekOfMonth());
+                map.put(week, map.getOrDefault(week, 0) + 1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 }
