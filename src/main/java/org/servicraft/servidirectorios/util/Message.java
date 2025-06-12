@@ -72,6 +72,18 @@ public enum Message {
     CLICKS_COUNT("clicks-count", "&6Clics: &e{count}"),
     TOGGLE_ALL_TIME("toggle-all-time", "&aDesde siempre"),
     TOGGLE_SINCE_PURCHASE("toggle-since-purchase", "&cDesde compra"),
+    MONTH_1("month-1", "enero"),
+    MONTH_2("month-2", "febrero"),
+    MONTH_3("month-3", "marzo"),
+    MONTH_4("month-4", "abril"),
+    MONTH_5("month-5", "mayo"),
+    MONTH_6("month-6", "junio"),
+    MONTH_7("month-7", "julio"),
+    MONTH_8("month-8", "agosto"),
+    MONTH_9("month-9", "septiembre"),
+    MONTH_10("month-10", "octubre"),
+    MONTH_11("month-11", "noviembre"),
+    MONTH_12("month-12", "diciembre"),
     STATS_BACK("stats-back", "&fVolver");
 
     private static YamlConfiguration config;
