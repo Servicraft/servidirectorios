@@ -42,7 +42,7 @@ public class StatsMenuListener implements Listener {
             }
             return;
         }
-        if (title.startsWith(Message.STATS_MONTHS_TITLE.get().split("{",2)[0])) {
+        if (title.startsWith(Message.STATS_MONTHS_TITLE.get().split("\\{",2)[0])) {
             event.setCancelled(true);
             ItemStack item = event.getCurrentItem();
             if (item == null) return;
@@ -61,7 +61,7 @@ public class StatsMenuListener implements Listener {
             }
             return;
         }
-        if (title.startsWith(Message.STATS_WEEKS_TITLE.get().split("{",2)[0])) {
+        if (title.startsWith(Message.STATS_WEEKS_TITLE.get().split("\\{",2)[0])) {
             event.setCancelled(true);
             ItemStack item = event.getCurrentItem();
             if (item == null) return;

@@ -26,7 +26,12 @@ public class StatsYearGUI {
     public static void open(Player player, int slotIndex, boolean since) {
         sincePurchase.put(player.getUniqueId(), since);
         currentSlot.put(player.getUniqueId(), slotIndex);
-        Map<Integer, Integer> data = DatabaseManager.getClicksPerYear(slotIndex, since ? DatabaseManager.getSlotPurchaseTime(slotIndex) : 0L);
+        Map<Integer, Integer> raw = DatabaseManager.getClicksPerYear(slotIndex, since ? DatabaseManager.getSlotPurchaseTime(slotIndex) : 0L);
+        int currentYear = java.time.LocalDate.now().getYear();
+        java.util.Map<Integer, Integer> data = new java.util.LinkedHashMap<>();
+        for (int y = 2025; y <= currentYear; y++) {
+            data.put(y, raw.getOrDefault(y, 0));
+        }
         int size = Math.max(9, ((data.size() - 1) / 9 + 1) * 9);
         Inventory inv = Bukkit.createInventory(null, size, Message.STATS_YEARS_TITLE.get());
         for (int i = 0; i < inv.getSize(); i++) {

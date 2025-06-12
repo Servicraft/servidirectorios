@@ -18,12 +18,22 @@ public class StatsMonthGUI {
     private static final Map<UUID, Integer> currentSlot = new HashMap<>();
     private static final Map<UUID, Integer> currentYear = new HashMap<>();
     private static final Map<UUID, Map<Integer, Integer>> monthMap = new HashMap<>();
+    private static final Message[] MONTHS = {
+            Message.MONTH_1, Message.MONTH_2, Message.MONTH_3, Message.MONTH_4,
+            Message.MONTH_5, Message.MONTH_6, Message.MONTH_7, Message.MONTH_8,
+            Message.MONTH_9, Message.MONTH_10, Message.MONTH_11, Message.MONTH_12
+    };
 
     public static void open(Player player, int slotIndex, int year) {
         currentSlot.put(player.getUniqueId(), slotIndex);
         currentYear.put(player.getUniqueId(), year);
         boolean since = StatsYearGUI.isSincePurchase(player);
-        Map<Integer, Integer> data = DatabaseManager.getClicksPerMonth(slotIndex, year, since ? DatabaseManager.getSlotPurchaseTime(slotIndex) : 0L);
+        Map<Integer, Integer> raw = DatabaseManager.getClicksPerMonth(slotIndex, year, since ? DatabaseManager.getSlotPurchaseTime(slotIndex) : 0L);
+        java.util.Map<Integer, Integer> data = new java.util.LinkedHashMap<>();
+        int startMonth = year == 2025 ? 6 : 1;
+        for (int m = startMonth; m <= 12; m++) {
+            data.put(m, raw.getOrDefault(m, 0));
+        }
         int size = Math.max(9, ((data.size() - 1) / 9 + 1) * 9);
         Inventory inv = Bukkit.createInventory(null, size, Message.STATS_MONTHS_TITLE.get().replace("{year}", String.valueOf(year)));
         for (int i = 0; i < inv.getSize(); i++) {
@@ -41,7 +51,9 @@ public class StatsMonthGUI {
             ItemStack chest = new ItemStack(Material.CHEST);
             ItemMeta meta = chest.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(ChatColor.WHITE + String.valueOf(e.getKey()));
+                int monthIndex = e.getKey() - 1;
+                String name = monthIndex >= 0 && monthIndex < MONTHS.length ? MONTHS[monthIndex].get() : String.valueOf(e.getKey());
+                meta.setDisplayName(ChatColor.WHITE + name);
                 meta.setLore(java.util.Collections.singletonList(Message.CLICKS_COUNT.get().replace("{count}", String.valueOf(e.getValue()))));
                 chest.setItemMeta(meta);
             }
