@@ -45,6 +45,7 @@ public class Servidirectorios extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BuySlotWeeksGUIListener(), this);
         getServer().getPluginManager().registerEvents(new ShortcutMenuListener(), this);
         getServer().getPluginManager().registerEvents(new EditMenuListener(), this);
+        getServer().getPluginManager().registerEvents(new org.servicraft.servidirectorios.listeners.StatsMenuListener(), this);
     }
     
     @Override

@@ -62,7 +62,17 @@ public enum Message {
     EDIT_CANCELLED("edit-cancelled", "Edición cancelada."),
     ADMIN_DELETE_REFUND("admin-delete-refund", "&eEliminar y devolver dinero al propietario"),
     DIRECTORY_REMOVED("directory-removed", "Directorio eliminado y se devolvió {amount} al propietario."),
-    DIRECTORY_REMOVED_OWNER("directory-removed-owner", "Tu directorio fue eliminado y se te devolvió {amount}.");
+    DIRECTORY_REMOVED_OWNER("directory-removed-owner", "Tu directorio fue eliminado y se te devolvió {amount}."),
+
+    STATS_TITLE("stats-title", "Estadísticas"),
+    STATS_YEARS_TITLE("stats-years-title", "Años"),
+    STATS_MONTHS_TITLE("stats-months-title", "Meses de {year}"),
+    STATS_WEEKS_TITLE("stats-weeks-title", "Semanas de {month}/{year}"),
+    CLICK_TO_VIEW("click-to-view", "&fHaz clic para ver"),
+    CLICKS_COUNT("clicks-count", "&6Clics: &e{count}"),
+    TOGGLE_ALL_TIME("toggle-all-time", "&aDesde siempre"),
+    TOGGLE_SINCE_PURCHASE("toggle-since-purchase", "&cDesde compra"),
+    STATS_BACK("stats-back", "&fVolver");
 
     private static YamlConfiguration config;
     private final String path;

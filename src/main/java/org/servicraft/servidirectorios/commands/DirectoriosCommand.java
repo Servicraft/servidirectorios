@@ -49,6 +49,11 @@ public class DirectoriosCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (args[0].equalsIgnoreCase("estadisticas")) {
+            org.servicraft.servidirectorios.gui.StatsListGUI.open(player);
+            return true;
+        }
+
         if (args[0].equalsIgnoreCase("editar")) {
             EditListGUI.open(player);
             return true;
@@ -66,6 +71,7 @@ public class DirectoriosCommand implements CommandExecutor, TabCompleter {
             if ("tiendas".startsWith(arg)) completions.add("tiendas");
             if ("comprar".startsWith(arg)) completions.add("comprar");
             if ("editar".startsWith(arg)) completions.add("editar");
+            if ("estadisticas".startsWith(arg)) completions.add("estadisticas");
         }
         return completions;
     }
