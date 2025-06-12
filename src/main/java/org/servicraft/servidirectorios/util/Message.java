@@ -62,7 +62,24 @@ public enum Message {
     EDIT_CANCELLED("edit-cancelled", "Edición cancelada."),
     ADMIN_DELETE_REFUND("admin-delete-refund", "&eEliminar y devolver dinero al propietario"),
     DIRECTORY_REMOVED("directory-removed", "Directorio eliminado y se devolvió {amount} al propietario."),
-    DIRECTORY_REMOVED_OWNER("directory-removed-owner", "Tu directorio fue eliminado y se te devolvió {amount}.");
+    DIRECTORY_REMOVED_OWNER("directory-removed-owner", "Tu directorio fue eliminado y se te devolvió {amount}.") ,
+    STATS_YEARS_TITLE("stats-years-title", "Estadísticas - Años"),
+    STATS_MONTHS_TITLE("stats-months-title", "Estadísticas - {year}"),
+    STATS_YEAR_NAME("stats-year-name", "Año {year}"),
+    STATS_CLICKS("stats-clicks", "Clics: {clicks}"),
+    STATS_BACK("stats-back", "Volver"),
+    MONTH_1("month-1", "enero"),
+    MONTH_2("month-2", "febrero"),
+    MONTH_3("month-3", "marzo"),
+    MONTH_4("month-4", "abril"),
+    MONTH_5("month-5", "mayo"),
+    MONTH_6("month-6", "junio"),
+    MONTH_7("month-7", "julio"),
+    MONTH_8("month-8", "agosto"),
+    MONTH_9("month-9", "septiembre"),
+    MONTH_10("month-10", "octubre"),
+    MONTH_11("month-11", "noviembre"),
+    MONTH_12("month-12", "diciembre");
 
     private static YamlConfiguration config;
     private final String path;

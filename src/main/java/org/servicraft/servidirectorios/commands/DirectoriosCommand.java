@@ -10,6 +10,7 @@ import org.servicraft.servidirectorios.Servidirectorios;
 import org.servicraft.servidirectorios.gui.BuySlotGUI;
 import org.servicraft.servidirectorios.gui.ShortcutMenu;
 import org.servicraft.servidirectorios.gui.EditListGUI;
+import org.servicraft.servidirectorios.gui.StatsMenu;
 import org.servicraft.servidirectorios.util.Message;
 
 import java.util.ArrayList;
@@ -49,6 +50,11 @@ public class DirectoriosCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (args[0].equalsIgnoreCase("estadisticas")) {
+            StatsMenu.openYears(player);
+            return true;
+        }
+
         if (args[0].equalsIgnoreCase("editar")) {
             EditListGUI.open(player);
             return true;
@@ -66,6 +72,7 @@ public class DirectoriosCommand implements CommandExecutor, TabCompleter {
             if ("tiendas".startsWith(arg)) completions.add("tiendas");
             if ("comprar".startsWith(arg)) completions.add("comprar");
             if ("editar".startsWith(arg)) completions.add("editar");
+            if ("estadisticas".startsWith(arg)) completions.add("estadisticas");
         }
         return completions;
     }

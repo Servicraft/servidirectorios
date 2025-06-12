@@ -8,6 +8,7 @@ import org.servicraft.servidirectorios.listeners.BuySlotGUIListener;
 import org.servicraft.servidirectorios.listeners.BuySlotWeeksGUIListener;
 import org.servicraft.servidirectorios.listeners.ShortcutMenuListener;
 import org.servicraft.servidirectorios.listeners.EditMenuListener;
+import org.servicraft.servidirectorios.listeners.StatsMenuListener;
 import org.servicraft.servidirectorios.database.DatabaseManager;
 import org.servicraft.servidirectorios.util.Message;
 import net.milkbowl.vault.economy.Economy;
@@ -45,6 +46,7 @@ public class Servidirectorios extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BuySlotWeeksGUIListener(), this);
         getServer().getPluginManager().registerEvents(new ShortcutMenuListener(), this);
         getServer().getPluginManager().registerEvents(new EditMenuListener(), this);
+        getServer().getPluginManager().registerEvents(new StatsMenuListener(), this);
     }
     
     @Override

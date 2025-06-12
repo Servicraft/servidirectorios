@@ -80,9 +80,16 @@ public class DatabaseManager {
                 "shortcut_id INT NOT NULL," +
                 "expires BIGINT NOT NULL," +
                 "owner VARCHAR(32) NOT NULL" +
-                ")";
+                ")"; 
+        String stats = "CREATE TABLE IF NOT EXISTS stats (" +
+                "year INT NOT NULL," +
+                "month INT NOT NULL," +
+                "clicks INT NOT NULL," +
+                "PRIMARY KEY(year, month)" +
+                ")"; 
         connection.createStatement().executeUpdate(shortcuts);
         connection.createStatement().executeUpdate(slots);
+        connection.createStatement().executeUpdate(stats);
         try {
             connection.createStatement().executeUpdate("ALTER TABLE slots ADD COLUMN IF NOT EXISTS owner VARCHAR(32) NOT NULL DEFAULT ''");
         } catch (SQLException ignore) {}
@@ -367,5 +374,69 @@ public class DatabaseManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void recordClick() {
+        if (connection == null) return;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        int year = cal.get(java.util.Calendar.YEAR);
+        int month = cal.get(java.util.Calendar.MONTH) + 1;
+        String select = "SELECT clicks FROM stats WHERE year=? AND month=?";
+        try (PreparedStatement ps = connection.prepareStatement(select)) {
+            ps.setInt(1, year);
+            ps.setInt(2, month);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int clicks = rs.getInt(1) + 1;
+                try (PreparedStatement up = connection.prepareStatement("UPDATE stats SET clicks=? WHERE year=? AND month=?")) {
+                    up.setInt(1, clicks);
+                    up.setInt(2, year);
+                    up.setInt(3, month);
+                    up.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement ins = connection.prepareStatement("INSERT INTO stats(year, month, clicks) VALUES(?,?,?)")) {
+                    ins.setInt(1, year);
+                    ins.setInt(2, month);
+                    ins.setInt(3, 1);
+                    ins.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int getClicks(int year, int month) {
+        if (connection == null) return 0;
+        String sql = "SELECT clicks FROM stats WHERE year=? AND month=?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, year);
+            ps.setInt(2, month);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static int getYearTotal(int year) {
+        int total = 0;
+        for (int m = 1; m <= 12; m++) {
+            total += getClicks(year, m);
+        }
+        return total;
+    }
+
+    public static java.util.List<Integer> getYears() {
+        int current = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+        java.util.List<Integer> list = new java.util.ArrayList<>();
+        for (int y = 2025; y <= current; y++) {
+            list.add(y);
+        }
+        return list;
     }
 }

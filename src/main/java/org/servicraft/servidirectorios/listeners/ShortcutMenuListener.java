@@ -48,6 +48,7 @@ public class ShortcutMenuListener implements Listener {
                 } else {
                     player.teleport(sc.getLocation());
                     player.sendMessage(Message.TELEPORTED_TO.get().replace("{name}", sc.getName()));
+                    org.servicraft.servidirectorios.database.DatabaseManager.recordClick();
                 }
             }
         }
